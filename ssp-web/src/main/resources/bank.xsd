@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.glarimy.com/bank"
+	xmlns:tns="http://www.glarimy.com/bank" elementFormDefault="qualified">
+	<element name="address">
+		<complexType>
+			<sequence>
+				<element name='id' type='int' />
+				<element name="city" type='string' />
+				<element name="pin" type='int' />
+			</sequence>
+		</complexType>
+	</element>
+	<element name="transaction">
+		<complexType>
+			<sequence>
+				<element name='id' type='int' />
+				<element name="date" type='date' />
+				<element name="admount" type='double' />
+				<element name="balance" type='double' />
+				<element name="credit" type='boolean' />
+			</sequence>
+		</complexType>
+	</element>
+	<element name="customerData">
+		<complexType>
+			<sequence>
+				<element name='id' type='int' />
+				<element name="name" type='string' />
+				<element name="phoneNumber" type='long' />
+				<element ref="tns:address" />
+			</sequence>
+		</complexType>
+	</element>
+	<element name="account">
+		<complexType>
+			<sequence>
+				<element name="number" type='int' />
+				<element name="balance" type='double' />
+				<element ref="tns:customerData" />
+				<element ref="tns:transaction" minOccurs="0" maxOccurs="unbounded" />
+			</sequence>
+		</complexType>
+	</element>
+</schema>

@@ -1,0 +1,57 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans	
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location=" classpath:hibernate.properties" />
+
+	<context:component-scan base-package="com.ssp.web*" />
+	<context:annotation-config />
+	<tx:annotation-driven />
+
+	<!--<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>-->
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <!--<property name="configLocations" value="classpath*:hibernate.cfg.xml"/>-->
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <prop key="show_sql">${show_sql}</prop>
+                <prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+                <!--<prop key="hibernate.order_inserts">${hibernate.order_inserts}</prop>
+                    <prop key="hibernate.order_updates">${hibernate.order_updates}</prop>-->
+                <prop key="hibernate.connection.useUnicode">${hibernate.connection.useUnicode}</prop>
+                <prop key="hibernate.connection.characterEncoding">${hibernate.connection.characterEncoding}</prop>
+                <prop key="hibernate.connection.charSet">${hibernate.connection.charSet}</prop>
+                <!--<prop key="hibernate.connection.defaultNChar">${hibernate.connection.defaultNChar}</prop>
+                    <prop key="hibernate.generate_statistics">${hibernate.generate_statistics}</prop>-->
+            </props>
+        </property>
+        <property name="packagesToScan" value="com.glarimy.*"/>
+    </bean>
+	<!--<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>-->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		p:driverClassName="com.mysql.jdbc.Driver" p:url="jdbc:mysql://localhost:3306/ssp?createDatabaseIfNotExist=true"
+		p:username="root" p:password="welcome" p:initialSize="5" p:maxActive="10">
+	</bean>
+
+    <import resource="spring-mongodb-config.xml"/>
+</beans>
