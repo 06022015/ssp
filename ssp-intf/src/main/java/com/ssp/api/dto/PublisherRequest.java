@@ -1,5 +1,6 @@
 package com.ssp.api.dto;
 
+
 import org.codehaus.jettison.json.JSONObject;
 
 /**
@@ -10,6 +11,16 @@ import org.codehaus.jettison.json.JSONObject;
  * To change this template use File | Settings | File Templates.
  */
 public class PublisherRequest {
+
+    private String publisherId;
+
+    public String getPublisherId() {
+        return publisherId;
+    }
+
+    public void setPublisherId(String publisherId) {
+        this.publisherId = publisherId;
+    }
 
     public static PublisherRequest parse(JSONObject json){
         PublisherRequest request = new PublisherRequest();

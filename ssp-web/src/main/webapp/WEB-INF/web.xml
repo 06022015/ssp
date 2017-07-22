@@ -6,6 +6,9 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener
 		</listener-class>
 	</listener>
+    <listener>
+        <listener-class>com.ssp.web.util.SSPServletContextListener</listener-class>
+    </listener>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<!--<param-value>WEB-INF/jaxrs.xml classpath:applicationContext.xml</param-value>-->
@@ -13,10 +16,11 @@
 	</context-param>
 	<servlet>
 		<servlet-name>ssp</servlet-name>
-		<servlet-class>com.glarimy.bank.servlet.SSPServlet</servlet-class>
+		<servlet-class>com.ssp.web.servlet.SSPServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>ssp</servlet-name>
 		<url-pattern>/*</url-pattern>
+        <load-on-startup>1</load-on-startup>
 	</servlet-mapping>
 </web-app>

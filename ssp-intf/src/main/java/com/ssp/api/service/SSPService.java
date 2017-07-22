@@ -1,5 +1,8 @@
 package com.ssp.api.service;
 
+import com.ssp.api.dto.PublisherRequest;
+import com.ssp.api.dto.PublisherResponse;
+
 /**
  * Created by IntelliJ IDEA.
  * User: ashqures
@@ -8,4 +11,7 @@ package com.ssp.api.service;
  * To change this template use File | Settings | File Templates.
  */
 public interface SSPService {
+
+    PublisherResponse processRequest(PublisherRequest request);
+
 }

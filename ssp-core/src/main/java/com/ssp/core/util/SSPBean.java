@@ -4,6 +4,7 @@ import com.ssp.api.repository.jpa.JPARepository;
 import com.ssp.api.repository.mongo.MongoRepository;
 import com.ssp.api.service.DSPService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,6 +29,12 @@ public class SSPBean {
     @Autowired
     private DSPService dspService;
 
+    @Autowired
+    private ThreadPoolTaskExecutor dspExecutor;
+
+    @Autowired
+    private ThreadPoolTaskExecutor dspNotifyExecutor;
+
     public JPARepository getJpaRepository() {
         return jpaRepository;
     }
@@ -42,5 +49,13 @@ public class SSPBean {
 
     public DSPService getDspService() {
         return dspService;
+    }
+
+    public ThreadPoolTaskExecutor getDspExecutor() {
+        return dspExecutor;
+    }
+
+    public ThreadPoolTaskExecutor getDspNotifyExecutor() {
+        return dspNotifyExecutor;
     }
 }

@@ -30,20 +30,37 @@ public class DSPServiceImpl implements DSPService{
 
     @Override
     public DSPResponse dspBid(DSPDetail dspDetail, JSONObject content) {
-        ClientRequest request = new ClientRequest(dspDetail.getName(), ClientMethod.POST);
+        /*ClientRequest request = new ClientRequest(dspDetail.getName(), ClientMethod.POST);
         request.setContent(content);
-        ClientResponse response = client.post(request);
+        ClientResponse response = client.post(request);*/
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         DSPResponse dspResponse = new DSPResponse();
-        dspResponse.setCode(response.getCode());
+        dspResponse.setCode(200);
         dspResponse.setDspDetail(dspDetail);
-        dspResponse.setResponse(response.getResponse());
+        dspResponse.setResponse("Success");
+        dspResponse.setBidValue((double) dspDetail.getId() * 2.2);
         return dspResponse;
     }
 
     @Override
-    public void notifyDSP(DSPDetail dspDetail, JSONObject content) {
-        ClientRequest request = new ClientRequest(dspDetail.getName(), ClientMethod.POST);
+    public DSPResponse notifyDSP(DSPDetail dspDetail, JSONObject content) {
+        /*ClientRequest request = new ClientRequest(dspDetail.getName(), ClientMethod.POST);
         request.setContent(content);
-        client.post(request);
+        client.post(request);*/
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        DSPResponse dspResponse = new DSPResponse();
+        dspResponse.setCode(200);
+        dspResponse.setDspDetail(dspDetail);
+        dspResponse.setResponse("Success");
+        dspResponse.setBidValue((double) dspDetail.getId() * 2.2);
+        return dspResponse;
     }
 }

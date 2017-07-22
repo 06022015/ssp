@@ -11,8 +11,19 @@ import org.codehaus.jettison.json.JSONObject;
  */
 public class PublisherResponse {
 
+    private String response;
 
+    public PublisherResponse(String response) {
+        this.response = response;
+    }
 
+    public String getResponse() {
+        return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
+    }
 
     public JSONObject toJSON(){
         JSONObject json = new JSONObject();

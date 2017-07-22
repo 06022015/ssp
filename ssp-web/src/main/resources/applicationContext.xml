@@ -1,27 +1,30 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
-	xsi:schemaLocation="
-		http://www.springframework.org/schema/beans	
-		http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/tx 
-		http://www.springframework.org/schema/tx/spring-tx.xsd
-		http://www.springframework.org/schema/context
-		http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
-    <context:property-placeholder location=" classpath:hibernate.properties" />
+    <context:property-placeholder location="classpath:hibernate.properties,classpath:ssp.properties,classpath:jdbc.properties" />
+    <context:annotation-config/>
+    <context:component-scan base-package="com.ssp"/>
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager"/>
 
-	<context:component-scan base-package="com.ssp.web*" />
-	<context:annotation-config />
-	<tx:annotation-driven />
-
-	<!--<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="sessionFactory" ref="sessionFactory" />
-	</bean>-->
-
-    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory" />
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxActive" value="1000"/>
+        <property name="maxWait" value="1000"/>
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="validationQuery" value="select 1"/>
     </bean>
+
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
@@ -33,25 +36,44 @@
                 <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
                 <prop key="show_sql">${show_sql}</prop>
                 <prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+                <prop key="hibernate.jdbc.lob.non_contextual_creation">false</prop>
                 <!--<prop key="hibernate.order_inserts">${hibernate.order_inserts}</prop>
-                    <prop key="hibernate.order_updates">${hibernate.order_updates}</prop>-->
+                <prop key="hibernate.order_updates">${hibernate.order_updates}</prop>-->
                 <prop key="hibernate.connection.useUnicode">${hibernate.connection.useUnicode}</prop>
                 <prop key="hibernate.connection.characterEncoding">${hibernate.connection.characterEncoding}</prop>
                 <prop key="hibernate.connection.charSet">${hibernate.connection.charSet}</prop>
                 <!--<prop key="hibernate.connection.defaultNChar">${hibernate.connection.defaultNChar}</prop>
-                    <prop key="hibernate.generate_statistics">${hibernate.generate_statistics}</prop>-->
+                <prop key="hibernate.generate_statistics">${hibernate.generate_statistics}</prop>-->
+                <!-- enable second level cache and query cache -->
+                <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
+                <prop key="hibernate.cache.use_second_level_cache">true</prop>
+                <prop key="hibernate.cache.use_query_cache">true</prop>
+                <prop key="net.sf.ehcache.configurationResourceName">ehcache.xml</prop>
+
             </props>
         </property>
-        <property name="packagesToScan" value="com.glarimy.*"/>
+        <property name="packagesToScan" value="com.ssp.api.entity.jpa"/>
     </bean>
-	<!--<bean id="entityManagerFactory"
-		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-	</bean>-->
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-		p:driverClassName="com.mysql.jdbc.Driver" p:url="jdbc:mysql://localhost:3306/ssp?createDatabaseIfNotExist=true"
-		p:username="root" p:password="welcome" p:initialSize="5" p:maxActive="10">
-	</bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+    <bean id="dspExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="${core.pool.size}"/>
+        <property name="maxPoolSize" value="${max.pool.size}"/>
+        <property name="queueCapacity" value="${queue.capacity}"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+    </bean>
+
+
+    <bean id="dspNotifyExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="${core.pool.size}"/>
+        <property name="maxPoolSize" value="${max.pool.size}"/>
+        <property name="queueCapacity" value="${queue.capacity}"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+    </bean>
 
     <import resource="spring-mongodb-config.xml"/>
+    <!--<import resource="spring-cache.xml"/>-->
 </beans>

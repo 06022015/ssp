@@ -9,7 +9,7 @@
                 http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
 
     <!-- Default bean name is 'mongo' -->
-    <mongo:mongo host="localhost" port="27017">
+    <mongo:mongo host="127.0.0.1" port="27017">
         <!-- OPTIONAL: configure <mongo:options /> -->
     </mongo:mongo>
 

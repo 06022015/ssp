@@ -14,6 +14,11 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -110,14 +115,16 @@ public class SSPHttpClient {
             connection.setRequestMethod(property.getMethod());
             //connection.setConnectTimeout(property.getConnectTimeOut());
             //connection.setReadTimeout(property.getReadTimeOut());
-            //connection.setUseCaches(property.isUseCache());
-            //connection.setRequestProperty("Content-Type", property.getContentType());
-            //connection.setRequestProperty("Accept", property.getAcceptType());
+            connection.setUseCaches(property.isUseCache());
+            connection.setRequestProperty("Content-Type", property.getContentType());
+            connection.setRequestProperty("Accept", property.getAcceptType());
             return connection;
         } catch (MalformedURLException e) {
+            e.printStackTrace();
             logger.error("Unable to form URL:- "+ e.getMessage());
             throw new SSPURLException("URL not formed properly", e.getCause(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new HttpConnectionException(e.getCause(),"Unable to connect to server");
         }
     }
@@ -128,7 +135,7 @@ public class SSPHttpClient {
         InputStream read = null;
         int code = 200;
         try {
-            logger.debug("Connecting to dsp server....");
+            //logger.debug("Connecting to dsp server....");
             connection.connect();
             code = connection.getResponseCode();
             read = connection.getInputStream();
@@ -137,8 +144,9 @@ public class SSPHttpClient {
                 os.write(buf, 0, ret);
             }
         } catch (IOException e) {
+            e.printStackTrace();
             try {
-                logger.debug("failed to connect. Reading error message");
+                //logger.debug("failed to connect. Reading error message");
                 code = connection.getResponseCode();
                 read = connection.getErrorStream();
                 int ret = 0;
@@ -146,6 +154,7 @@ public class SSPHttpClient {
                     os.write(buf, 0, ret);
                 }
             } catch(IOException ex) {
+                ex.printStackTrace();
                 throw new HttpConnectionException(ex.getCause(),"Unable to connect to server");
             }
         }finally {
@@ -156,15 +165,89 @@ public class SSPHttpClient {
             } catch (IOException e) {
                // throw new HttpConnectionException(e.getCause(),"Unable to close connection");
             }
-            logger.debug("Disconnecting...");
+            //logger.debug("Disconnecting...");
             connection.disconnect();
         }
         return new ClientResponse(code, os.toString());
     }
     
     
-    public static void main(String args[]){
+    public static void main(String args[]) throws InterruptedException {
+
+        for(int i=0;i< 3000; i++){
+            final int index = i;
+            Thread thread = new Thread(){
+                public void run(){
+                    testSSP(index);
+                }
+            };
+            thread.start();
+            Thread.sleep(1);
+        }
+    }
+
+    public static void testParellel(final int index){
+        ExecutorService executorService = Executors.newFixedThreadPool(200);
+        List<Callable<String>> callables = new ArrayList<Callable<String>>();
+        for(int i = 0; i< 1; i++){
+            Callable<String> callable = new Callable<String>() {
+                @Override
+                public String call() throws Exception {
+                    return testSSP(index);
+                }
+            };
+            callables.add(callable);
+        }
+        long startTime = Calendar.getInstance().getTimeInMillis();
+        System.out.println("Thread Number"+index+" Start time:- "+startTime);
+        List<Future<String>> requests = null;
+        try {
+            requests = executorService.invokeAll(callables);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Thread Number"+index+" Mid time:- "+Calendar.getInstance().getTimeInMillis());
+        executorService.shutdown();
+        while (!executorService.isTerminated()){
+
+        }
+        long endTime = Calendar.getInstance().getTimeInMillis();
+        System.out.println("Thread Number"+index+ " End time:- "+endTime);
+        System.out.println("Thread Number"+index+ " Diff:- " + (endTime-startTime));
+        for(Future<String> future: requests){
+            try {
+                future.get();
+                //System.out.println(future.get());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Complete time:- "+new Date());
+    }
+    
+    
+    public static String testSSP(Integer pubId){
+        long startTime = Calendar.getInstance().getTimeInMillis();
+        System.out.println("Thread Number"+pubId+" Start time:- "+startTime);
         SSPHttpClient client = new SSPHttpClient();
-        System.out.println(client.get("http://google.com").getResponse());
+        HttpURLConnection connection = client.getConnection(new HttpConnectionProperty("http://localhost:8080/ssp?pubId="+pubId, ClientMethod.POST.toString()));
+        try {
+            connection.setDoOutput(true);
+            connection.addRequestProperty("pubId", pubId+"");
+            String res = client.connect(connection).getResponse();
+            long endTime = Calendar.getInstance().getTimeInMillis();
+            System.out.println("Thread Number"+pubId+ " End time:- "+endTime);
+            System.out.println("Thread Number"+pubId+ " Diff:- " + (endTime-startTime));
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Unable to write request:- "+ e.getMessage());
+            throw new SSPURLException("Unable to write request", e.getCause(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }finally {
+            if(null != connection)
+                connection.disconnect();
+        }
     }
 }

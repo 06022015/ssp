@@ -16,6 +16,6 @@ public interface DSPService {
 
     DSPResponse dspBid(DSPDetail dspDetail, JSONObject content);
 
-     void notifyDSP(DSPDetail dspDetail, JSONObject content);
+    DSPResponse notifyDSP(DSPDetail dspDetail, JSONObject content);
 
 }

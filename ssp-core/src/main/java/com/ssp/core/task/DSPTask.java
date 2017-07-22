@@ -34,9 +34,21 @@ public class DSPTask implements Callable<DSPResponse> {
     @Override
     public DSPResponse call() throws Exception {
         try{
-            if(null != dspDetail.getQps() && dspDetail.getQps()>0)
+            /*if(null != dspDetail.getQps() && dspDetail.getQps()>0)
                 sspBean.getQpsCounter().increase(dspDetail.getId(), dspDetail.getQps());
-            return sspBean.getDspService().dspBid(dspDetail, content);
+            DSPResponse response = sspBean.getDspService().dspBid(dspDetail, content);*/
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            DSPResponse response = new DSPResponse();
+            response.setCode(200);
+            response.setDspDetail(dspDetail);
+            response.setResponse("Success");
+            response.setBidValue((double) dspDetail.getId() * 2.2);
+            sspBean.getQpsCounter().decrease(dspDetail.getId());
+            return  response;
         }catch (QPSLimitOverFlowException ex){
            logger.info("DSP PS limit exceeded. "+ dspDetail.getId() + dspDetail.getName());
         }

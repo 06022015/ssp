@@ -14,6 +14,19 @@ public class DSPRequest {
     private DSPDetail dspDetail;
     private String content;
 
+    public DSPDetail getDspDetail() {
+        return dspDetail;
+    }
 
+    public void setDspDetail(DSPDetail dspDetail) {
+        this.dspDetail = dspDetail;
+    }
 
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }

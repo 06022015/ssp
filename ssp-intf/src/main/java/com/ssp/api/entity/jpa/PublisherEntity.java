@@ -1,5 +1,8 @@
 package com.ssp.api.entity.jpa;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -12,6 +15,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "publisher")
+@Cache(usage= CacheConcurrencyStrategy.READ_ONLY, region="publisher")
 public class PublisherEntity extends BaseEntity{
 
     private String name;

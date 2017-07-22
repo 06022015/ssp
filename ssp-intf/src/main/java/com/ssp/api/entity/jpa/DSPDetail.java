@@ -1,6 +1,11 @@
 package com.ssp.api.entity.jpa;
 
-import javax.persistence.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,6 +16,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "dsp")
+@Cache(usage= CacheConcurrencyStrategy.READ_ONLY, region="dsp")
 public class DSPDetail extends BaseEntity{
 
     private String name;

@@ -25,8 +25,8 @@ public class ThreadPoolMonitorServiceImpl implements ThreadPoolMonitorService {
 
     private ThreadPoolTaskExecutor executor;
 
-    public ThreadPoolMonitorServiceImpl(ThreadPoolExecutor executor) {
-        //setExecutor(executor);
+    public ThreadPoolMonitorServiceImpl(ThreadPoolTaskExecutor executor) {
+        this.executor = executor;
         this.waitTime = WAIT_TIME;
     }
 
