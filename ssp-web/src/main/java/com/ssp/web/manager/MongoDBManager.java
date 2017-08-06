@@ -1,7 +1,8 @@
 package com.ssp.web.manager;
 
+import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
-import com.ssp.api.entity.mongo.RTBDetails;
+import com.ssp.api.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
@@ -26,23 +27,17 @@ public class MongoDBManager {
     private MongoTemplate mongoTemplate;
 
     @PreDestroy
-    public void shutDown(){
+    public void shutDown() {
         this.mongo.close();
     }
 
     @PostConstruct
-    public void insertRTBRe(){
-        /*for(int i=0;i< 10; i++){
-            RTBDetails rtbDetails = new RTBDetails();
-            rtbDetails.setId((long) i);
-            rtbDetails.setName("Ashif Qureshi"+i);
-            mongoTemplate.save(rtbDetails);
-        }*/
-
-        System.out.println("RTB Request count:- "+this.mongoTemplate.findAll(RTBDetails.class).size());
-
-
+    public void createCollection() {
+        /*DBCollection bidRequestCollection = this.mongoTemplate.getCollection(Constant.MONGO_USER_BID_REQUEST_COLLECTION);
+        if (bidRequestCollection.count() <= 0)
+            this.mongoTemplate.createCollection(Constant.MONGO_USER_BID_REQUEST_COLLECTION);
+        DBCollection winningBidCollection = this.mongoTemplate.getCollection(Constant.MONGO_USER_BID_REQUEST_COLLECTION);
+        if (winningBidCollection.count() <= 0)
+            this.mongoTemplate.createCollection(Constant.MONGO_WIN_BID_RESPONSE_COLLECTION);*/
     }
-
-
 }

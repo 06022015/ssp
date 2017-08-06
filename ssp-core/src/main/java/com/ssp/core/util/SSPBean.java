@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import java.util.Properties;
+
 /**
  * Created by IntelliJ IDEA.
  * User: ashqures
@@ -30,10 +32,23 @@ public class SSPBean {
     private DSPService dspService;
 
     @Autowired
+    private GeoLocationService locationService;
+
+    @Autowired
     private ThreadPoolTaskExecutor dspExecutor;
 
     @Autowired
     private ThreadPoolTaskExecutor dspNotifyExecutor;
+
+    @Autowired
+    private Properties properties;
+
+    private RTBGenerator rtbGenerator;
+
+
+    public SSPBean() {
+        rtbGenerator = new RTBGenerator();
+    }
 
     public JPARepository getJpaRepository() {
         return jpaRepository;
@@ -51,11 +66,23 @@ public class SSPBean {
         return dspService;
     }
 
+    public GeoLocationService getLocationService() {
+        return locationService;
+    }
+
     public ThreadPoolTaskExecutor getDspExecutor() {
         return dspExecutor;
     }
 
     public ThreadPoolTaskExecutor getDspNotifyExecutor() {
         return dspNotifyExecutor;
+    }
+
+    public RTBGenerator getRtbGenerator() {
+        return rtbGenerator;
+    }
+
+    public Properties getProperties() {
+        return properties;
     }
 }

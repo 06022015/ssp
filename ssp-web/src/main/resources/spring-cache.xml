@@ -9,7 +9,7 @@
 			http://www.springframework.org/schema/cache/spring-cache.xsd">
 
     <!--  Activates caching functionality -->
-    <cache:annotation-driven />
+    <!--<cache:annotation-driven />-->
 
     <!-- JDK-based generic cache manager
      <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
@@ -21,10 +21,10 @@
      </bean> -->
 
     <!-- EhCache cache manager -->
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+    <!--<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
           p:cache-manager-ref="ehcache"/>
 
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
-          p:configLocation="/WEB-INF/classes/ehcache.xml"/>
+          p:configLocation="/WEB-INF/classes/ehcache.xml"/>-->
 
 </beans>

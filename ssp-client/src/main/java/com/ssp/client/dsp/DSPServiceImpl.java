@@ -1,13 +1,13 @@
 package com.ssp.client.dsp;
 
 import com.ssp.api.dto.DSPResponse;
-import com.ssp.api.entity.jpa.DSPDetail;
+import com.ssp.api.entity.jpa.DSPInfo;
+import com.ssp.api.exception.SSPURLException;
 import com.ssp.api.service.DSPService;
 import com.ssp.client.http.ClientMethod;
 import com.ssp.client.http.ClientRequest;
 import com.ssp.client.http.ClientResponse;
 import com.ssp.client.http.SSPHttpClient;
-import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,46 +21,29 @@ import org.springframework.stereotype.Service;
  * To change this template use File | Settings | File Templates.
  */
 @Service
-public class DSPServiceImpl implements DSPService{
-    
+public class DSPServiceImpl implements DSPService {
+
     private static Logger logger = LoggerFactory.getLogger(DSPServiceImpl.class);
 
     @Autowired
     private SSPHttpClient client;
 
-    @Override
-    public DSPResponse dspBid(DSPDetail dspDetail, JSONObject content) {
-        /*ClientRequest request = new ClientRequest(dspDetail.getName(), ClientMethod.POST);
+    public DSPResponse dspBid(DSPInfo dspInfo, String content) throws SSPURLException {
+        ClientRequest request = new ClientRequest(dspInfo.getPingURL(), ClientMethod.POST);
         request.setContent(content);
-        ClientResponse response = client.post(request);*/
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        request.put(ClientRequest.CONNECTION_TIMEOUT_NAME, 100);
+        if (dspInfo.getMaxResponseTime() > 0)
+            request.put(ClientRequest.READ_TIMEOUT_NAME, dspInfo.getMaxResponseTime());
+        ClientResponse response = client.post(request);
         DSPResponse dspResponse = new DSPResponse();
-        dspResponse.setCode(200);
-        dspResponse.setDspDetail(dspDetail);
-        dspResponse.setResponse("Success");
-        dspResponse.setBidValue((double) dspDetail.getId() * 2.2);
+        dspResponse.setCode(response.getCode());
+        dspResponse.setDspInfo(dspInfo);
+        dspResponse.setResponse(response.getResponse());
         return dspResponse;
     }
 
-    @Override
-    public DSPResponse notifyDSP(DSPDetail dspDetail, JSONObject content) {
-        /*ClientRequest request = new ClientRequest(dspDetail.getName(), ClientMethod.POST);
-        request.setContent(content);
-        client.post(request);*/
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        DSPResponse dspResponse = new DSPResponse();
-        dspResponse.setCode(200);
-        dspResponse.setDspDetail(dspDetail);
-        dspResponse.setResponse("Success");
-        dspResponse.setBidValue((double) dspDetail.getId() * 2.2);
-        return dspResponse;
+    public Integer notifyDSP(String notifyURL) {
+        ClientResponse response = client.get(notifyURL);
+        return response.getCode();
     }
 }

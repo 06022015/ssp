@@ -9,13 +9,43 @@
                 http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
 
     <!-- Default bean name is 'mongo' -->
-    <mongo:mongo host="127.0.0.1" port="27017">
-        <!-- OPTIONAL: configure <mongo:options /> -->
-    </mongo:mongo>
+    <!--<mongo:mongo host="${ssp.mongo.host}" port="${ssp.mongo.port}">
+        &lt;!&ndash; OPTIONAL: configure <mongo:options /> &ndash;&gt;
+        <mongo:options auto-connect-retry="true" connections-per-host="200"  max-wait-time="200" />
+    </mongo:mongo>-->
 
-    <mongo:db-factory dbname="ssp" mongo-ref="mongo"/>
+    <mongo:mongo-client id="mongo" host="${ssp.mongo.host}" port="${ssp.mongo.port}" replica-set="127.0.0.1:27017">
+        <mongo:client-options write-concern="ACKNOWLEDGED"
+                              connections-per-host="100"
+                              connect-timeout="30000"
+                              max-wait-time="10000"/>
+    </mongo:mongo-client>
+
+
+    <!--
+    replica-set="xxx.xx.x.xx:27017,xxx.xx.x.xx::27017" credentials="admin:abc_123@xyz"
+    -->
+
+    <!--<bean id="mongoServer" class="com.mongodb.ServerAddress">
+           <constructor-arg index="0" value="${ssp.mongo.host}"/>
+           <constructor-arg index="1" value="${ssp.mongo.port}"/>
+    </bean>
+
+    <bean id="clientBuilder" class="com.mongodb.MongoClientOptions.Builder"/>
+
+    <bean id="mongoClientOptions" class="com.mongodb.MongoClientOptions" >
+        <constructor-arg ref="clientBuilder"/>
+    </bean>-->
+
+   <!-- <bean id="mogo" class="com.mongodb.Mongo">
+        <constructor-arg index="0" ref="mongoServer"/>
+        <constructor-arg index="1" ref="mongoClientOptions"/>
+    </bean>-->
+
+    <!--<mongo:db-factory dbname="${ssp.mongo.database}" mongo-ref="mongo"/>-->
 
     <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
-        <constructor-arg ref="mongoDbFactory"/>
+        <constructor-arg index="0" ref="mongo"/>
+        <constructor-arg index="1" value="${ssp.mongo.database}"/>
     </bean>
 </beans>

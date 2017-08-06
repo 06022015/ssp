@@ -1,8 +1,8 @@
 package com.ssp.api.service;
 
 import com.ssp.api.dto.DSPResponse;
-import com.ssp.api.entity.jpa.DSPDetail;
-import org.codehaus.jettison.json.JSONObject;
+import com.ssp.api.entity.jpa.DSPInfo;
+import com.ssp.api.exception.SSPURLException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,8 +14,8 @@ import org.codehaus.jettison.json.JSONObject;
 public interface DSPService {
 
 
-    DSPResponse dspBid(DSPDetail dspDetail, JSONObject content);
+    DSPResponse dspBid(DSPInfo dspInfo, String content)throws SSPURLException;
 
-    DSPResponse notifyDSP(DSPDetail dspDetail, JSONObject content);
+    Integer notifyDSP(String notifyURL);
 
 }

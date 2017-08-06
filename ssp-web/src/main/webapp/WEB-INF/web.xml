@@ -11,16 +11,24 @@
     </listener>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<!--<param-value>WEB-INF/jaxrs.xml classpath:applicationContext.xml</param-value>-->
 		<param-value>classpath:applicationContext.xml</param-value>
 	</context-param>
+	<servlet>
+		<servlet-name>monitor</servlet-name>
+		<servlet-class>com.ssp.web.servlet.SSPMonitorServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>monitor</servlet-name>
+		<url-pattern>/monitor</url-pattern>
+		<load-on-startup>2</load-on-startup>
+	</servlet-mapping>
 	<servlet>
 		<servlet-name>ssp</servlet-name>
 		<servlet-class>com.ssp.web.servlet.SSPServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>ssp</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/ReqAd</url-pattern>
         <load-on-startup>1</load-on-startup>
 	</servlet-mapping>
 </web-app>

@@ -1,6 +1,6 @@
 package com.ssp.api.dto;
 
-import com.ssp.api.entity.jpa.DSPDetail;
+import com.ssp.api.entity.jpa.DSPInfo;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,9 +12,9 @@ import com.ssp.api.entity.jpa.DSPDetail;
 public class DSPResponse {
 
     private Integer code;
-    private DSPDetail dspDetail;
+    private DSPInfo dspInfo;
     private String response;
-    private Double bidValue;
+    private BidData bidData;
 
     public Integer getCode() {
         return code;
@@ -24,12 +24,12 @@ public class DSPResponse {
         this.code = code;
     }
 
-    public DSPDetail getDspDetail() {
-        return dspDetail;
+    public DSPInfo getDspInfo() {
+        return dspInfo;
     }
 
-    public void setDspDetail(DSPDetail dspDetail) {
-        this.dspDetail = dspDetail;
+    public void setDspInfo(DSPInfo dspInfo) {
+        this.dspInfo = dspInfo;
     }
 
     public String getResponse() {
@@ -40,11 +40,11 @@ public class DSPResponse {
         this.response = response;
     }
 
-    public Double getBidValue() {
-        return bidValue;
+    public BidData getBidData() {
+        return bidData;
     }
 
-    public void setBidValue(Double bidValue) {
-        this.bidValue = bidValue;
+    public void setBidData(BidData bidData) {
+        this.bidData = bidData;
     }
 }

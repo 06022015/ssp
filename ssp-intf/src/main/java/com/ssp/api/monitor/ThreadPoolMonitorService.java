@@ -16,6 +16,4 @@ public  interface ThreadPoolMonitorService extends Runnable{
 
     ThreadPoolExecutor getExecutor();
 
-    //void setExecutor(ThreadPoolExecutor executor);
-
 }

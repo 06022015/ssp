@@ -1,6 +1,7 @@
 package com.ssp.client.http;
 
-import org.codehaus.jettison.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,26 +12,53 @@ import org.codehaus.jettison.json.JSONObject;
  */
 public class ClientRequest {
 
-    private JSONObject content;
-    private HttpConnectionProperty property;
+    public final static String CONTENT_TYPE = "application/json";
+    public final static String ACCEPT_TYPE = "application/json";
+
+    public final static String CONTENT_TYPE_NAME = "Content-Type";
+    public final static String ACCEPT_TYPE_NAME = "Accept";
+    public final static String CONNECTION_TIMEOUT_NAME = "connectionTimeout";
+    public final static String READ_TIMEOUT_NAME = "readTimeout";
+    public final static String USE_CACHE_NAME = "userCache";
+
+    private final String url;
+    private String method;
+    private String content;
+    private Map<String,Object> property;
+
+    private void init(){
+        this.property = new HashMap<String,Object>();
+        this.property.put(CONTENT_TYPE_NAME, CONTENT_TYPE);
+        this.property.put(ACCEPT_TYPE_NAME, ACCEPT_TYPE);
+    }
 
     public ClientRequest(String url, ClientMethod method) {
-        this.property = new HttpConnectionProperty(url, method.name());
+        this.url = url;
+        this.method = method.name();
+        init();
     }
 
-    public JSONObject getContent() {
-        return content;
-    }
-
-    public void setContent(JSONObject content) {
-        this.content = content;
-    }
-
-    public HttpConnectionProperty getProperty() {
+    public Map<String, Object> getProperty() {
         return property;
     }
 
-    public void setProperty(HttpConnectionProperty property) {
-        this.property = property;
+    public void put(String name, Object value){
+        this.property.put(name, value);
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getMethod() {
+        return method;
     }
 }

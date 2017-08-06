@@ -1,7 +1,7 @@
 package com.ssp.api.repository.jpa;
 
-import com.ssp.api.entity.jpa.DSPDetail;
-import com.ssp.api.entity.jpa.PublisherEntity;
+import com.ssp.api.entity.jpa.AdBlockInfo;
+import com.ssp.api.entity.jpa.DSPInfo;
 
 import java.util.List;
 
@@ -14,9 +14,8 @@ import java.util.List;
  */
 public interface JPARepository {
 
-    List<DSPDetail> getAllDSP();
+    List<DSPInfo> getAllDSP(String adFormat);
 
-
-    List<PublisherEntity> getAllPublisher();
+    AdBlockInfo  getAdBlockInfo(Long pubId, Long adBlockId);
 
 }

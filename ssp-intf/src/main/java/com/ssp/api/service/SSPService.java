@@ -1,7 +1,10 @@
 package com.ssp.api.service;
 
-import com.ssp.api.dto.PublisherRequest;
-import com.ssp.api.dto.PublisherResponse;
+import com.ssp.api.dto.BidData;
+import com.ssp.api.exception.SSPException;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,6 +15,6 @@ import com.ssp.api.dto.PublisherResponse;
  */
 public interface SSPService {
 
-    PublisherResponse processRequest(PublisherRequest request);
+    BidData processRequest(Map<String,String> parameter) throws SSPException, IOException;
 
 }

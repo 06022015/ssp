@@ -10,7 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ssp-core</artifactId>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>com.ssp</groupId>
@@ -34,5 +33,4 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-
 </project>

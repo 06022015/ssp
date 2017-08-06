@@ -13,8 +13,8 @@ public class HttpConnectionProperty {
     private final static String ACCEPT_TYPE = "application/json";
 
     private final String url;
-    private int connectTimeOut = 200;
-    private int readTimeOut = 500;
+    private int connectTimeOut = 100;
+    private int readTimeOut = 200;
     private String method;
     private boolean useCache = false;
     private String contentType ;

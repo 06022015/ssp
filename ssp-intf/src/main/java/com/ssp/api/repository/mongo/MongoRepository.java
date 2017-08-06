@@ -9,8 +9,8 @@ package com.ssp.api.repository.mongo;
  */
 public interface MongoRepository {
 
+     void saveRTBJSON(String bidRequest);
 
-
-
+    void saveWinningBid(String winningBid);
 
 }
