@@ -57,7 +57,7 @@ public class JPARepositoryImpl implements JPARepository {
         sqlQuery.setParameter("userId", pubId)
                 .setParameter("adBlockId", adBlockId)
                 .setResultTransformer(new AliasToBeanConstructorResultTransformer(AdBlockInfo.class.getConstructors()[0]))
-                .setCacheRegion("api_users")
+                .setCacheRegion("ad_block")
                 .setCacheMode(CacheMode.NORMAL);
         List<AdBlockInfo> results  = sqlQuery.list();
         return null != results && results.size()>0 ? results.get(0) : null;
