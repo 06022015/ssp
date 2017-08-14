@@ -16,7 +16,7 @@
 
     <mongo:mongo-client id="mongo" host="${ssp.mongo.host}" port="${ssp.mongo.port}" replica-set="127.0.0.1:27017">
         <mongo:client-options write-concern="ACKNOWLEDGED"
-                              connections-per-host="100"
+                              connections-per-host="1000"
                               connect-timeout="30000"
                               max-wait-time="10000"/>
     </mongo:mongo-client>

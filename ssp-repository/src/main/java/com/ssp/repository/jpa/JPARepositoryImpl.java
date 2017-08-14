@@ -2,6 +2,7 @@ package com.ssp.repository.jpa;
 
 import com.ssp.api.entity.jpa.AdBlockInfo;
 import com.ssp.api.entity.jpa.DSPInfo;
+import com.ssp.api.entity.jpa.WinNoticeEntity;
 import com.ssp.api.repository.jpa.JPARepository;
 import org.hibernate.*;
 import org.hibernate.transform.AliasToBeanConstructorResultTransformer;
@@ -38,18 +39,6 @@ public class JPARepositoryImpl implements JPARepository {
                 .setCacheRegion("api_users")
                 .setCacheMode(CacheMode.NORMAL);
         return sqlQuery.list();
-
-
-
-        
-        /*String hql = "select user.id as userId, user.pingURL as pingURL from UserEntity user where user.userType = '" + UserType.dsp + "' and user.approved = true and user.deleted = false and user .denied = false";
-        Query query = sessionFactory.getCurrentSession().createQuery(hql);
-        query.setCacheable(true);
-        query.setCacheRegion("api_users");
-        query.setCacheMode(CacheMode.NORMAL);
-        query.setResultTransformer(new AliasToBeanResultTransformer(DSPInfo.class));
-        return query.list();*/
-
     }
 
     public AdBlockInfo getAdBlockInfo(Long pubId, Long adBlockId) {
@@ -76,5 +65,10 @@ public class JPARepositoryImpl implements JPARepository {
         query.setResultTransformer(new AliasToBeanResultTransformer(AdBlockInfo.class));
         List result = query.list();
         return null != result && result.size() > 0 ? (AdBlockInfo) result.get(0) : null;*/
+    }
+
+
+    public void saveWinningBid(WinNoticeEntity winNotice){
+        sessionFactory.getCurrentSession().save(winNotice);
     }
 }

@@ -7,7 +7,7 @@ import com.ssp.api.dto.BidData;
 import com.ssp.api.exception.SSPException;
 import com.ssp.api.service.SSPService;
 import com.ssp.web.util.ApplicationContextUtil;
-import net.sourceforge.wurfl.core.WURFLHolder;
+/*import net.sourceforge.wurfl.core.WURFLHolder;*/
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +33,8 @@ public class SSPServlet extends HttpServlet {
     private static Logger logger = LoggerFactory.getLogger(SSPServlet.class);
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException, java.io.IOException {
+        long startTime = Calendar.getInstance().getTimeInMillis();
+        logger.debug("Request in for pubId:-" + req.getParameter(Constant.PUBLISHER_ID) + " " + startTime);
         String response = "";
         String dvId = req.getParameter(Constant.DIV_ID);
         try{
@@ -45,10 +47,8 @@ public class SSPServlet extends HttpServlet {
             parameter.put(Constant.REF_URL, req.getParameter("ref"));
             parameter.put(Constant.DEVICE_LANG, req.getLocale().getLanguage());
             deviceCap(parameter,req);
-            long startTime = Calendar.getInstance().getTimeInMillis();
-            logger.info("Request in for pubId:-" + parameter.get(Constant.PUBLISHER_ID) + " " + startTime);
             SSPService service = (SSPService) ApplicationContextUtil.getApplicationContext().getBean("sspService");
-            logger.info("Reading service obj:-" + (Calendar.getInstance().getTimeInMillis() - startTime));
+            logger.debug("Reading service obj:-" + (Calendar.getInstance().getTimeInMillis() - startTime));
             BidData bidData;
             try {
                 bidData = service.processRequest(parameter);
@@ -68,8 +68,9 @@ public class SSPServlet extends HttpServlet {
                 logger.error("Null pointer Exception "+e.getMessage());
                 resp.setStatus(HttpStatus.OK.value());
                 response = buildEmptyResponse(dvId);
+                e.printStackTrace();
             }
-            logger.info("Request out for pubId:-" + parameter.get(Constant.PUBLISHER_ID) + " " + (Calendar.getInstance().getTimeInMillis() - startTime));
+            logger.debug("Request out for pubId:-" + parameter.get(Constant.PUBLISHER_ID) + " " + (Calendar.getInstance().getTimeInMillis() - startTime));
         }catch (Exception e){
              e.printStackTrace();
             response = buildEmptyResponse(dvId);
@@ -83,25 +84,31 @@ public class SSPServlet extends HttpServlet {
             Device device = wurflHolder.getWURFLManager().getDeviceForRequest(req);*/
         WURFLEngine wurflEngine = (WURFLEngine)ApplicationContextUtil.getApplicationContext().getBean("wurflEngine");
         Device device = wurflEngine.getDeviceForRequest(req);
-        logger.info("WURFL device := " + device.toString());
+        logger.debug("WURFL device := " + device.toString());
         Map<String,String> deviceCap = device.getCapabilities();
         logger.debug("Virtual capabilities"+device.getVirtualCapabilities().toString());
         logger.debug("Capabilities"+deviceCap.toString());
         String deviceOs = deviceCap.get(Constant.DEVICE_OS);
-        if(StringUtils.isNotBlank(deviceOs))
-                    parameter.put(Constant.DEVICE_OS, deviceOs);
+        /*if(StringUtils.isNotBlank(deviceOs))*/
+            parameter.put(Constant.DEVICE_OS, StringUtils.isNotBlank(deviceOs)?deviceOs:"");
         String deviceOsVersion = deviceCap.get(Constant.DEVICE_OS_VERSION);
-        if(StringUtils.isNotBlank(deviceOsVersion))
-            parameter.put(Constant.DEVICE_OS_VERSION, deviceOsVersion);
+        /*if(StringUtils.isNotBlank(deviceOsVersion))*/
+            parameter.put(Constant.DEVICE_OS_VERSION, StringUtils.isNotBlank(deviceOsVersion)?deviceOsVersion:"");
         String deviceMake = deviceCap.get(Constant.DEVICE_MAKE);
-        if(StringUtils.isNotBlank(deviceMake))
-            parameter.put(Constant.DEVICE_MAKE, deviceMake);
+        /*if(StringUtils.isNotBlank(deviceMake))*/
+            parameter.put(Constant.DEVICE_MAKE, StringUtils.isNotBlank(deviceMake)?deviceMake:"");
         String deviceModel = deviceCap.get(Constant.DEVICE_MODEL);
-        if(StringUtils.isNotBlank(deviceModel))
-            parameter.put(Constant.DEVICE_MODEL, deviceModel);
+        /*if(StringUtils.isNotBlank(deviceModel))*/
+            parameter.put(Constant.DEVICE_MODEL, StringUtils.isNotBlank(deviceModel)?deviceModel:"");
         String formFactor = deviceCap.get(Constant.FORM_FACTOR);
-        if(StringUtils.isNotBlank(formFactor))
-            parameter.put(Constant.FORM_FACTOR, formFactor);
+        /*if(StringUtils.isNotBlank(formFactor))*/
+            parameter.put(Constant.FORM_FACTOR, StringUtils.isNotBlank(formFactor)?formFactor:"");
+        /*String carrier = deviceCap.get(Constant.DEVICE_CARRIER);
+        parameter.put(Constant.DEVICE_CARRIER, StringUtils.isNotBlank(carrier)?carrier:"");*/
+        String hwv = deviceCap.get(Constant.DEVICE_HWV);
+        parameter.put(Constant.DEVICE_HWV, StringUtils.isNotBlank(hwv)?hwv:"");
+
+
     }
 
     private String buildResponse(BidData bidData, String diveId){

@@ -8,6 +8,8 @@ import com.ssp.api.entity.jpa.DSPInfo;
 import com.ssp.api.exception.QPSLimitOverFlowException;
 import com.ssp.api.exception.SSPURLException;
 import com.ssp.core.util.SSPBean;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,20 +41,21 @@ public class DSPTask implements Callable<DSPResponse> {
     }
 
     public DSPResponse call() throws Exception  {
+        int code;
+        DSPResponse response = null;
+        JSONObject responseAsJSON = null;
         try{
             if(null != dspInfo.getQps() && dspInfo.getQps()>0)
                 sspBean.getQpsCounter().increase(dspInfo.getUserId(), dspInfo.getQps());
-            logger.info("Calling dsp..:- "+ dspInfo.getPingURL());
-            DSPResponse response = sspBean.getDspService().dspBid(dspInfo, content);
-            logger.info("Dsp .:- "+ dspInfo.getPingURL()+ " response:- "+ response.getResponse());
+            logger.debug("Calling dsp..:- "+ dspInfo.getPingURL());
+            response = sspBean.getDspService().dspBid(dspInfo, content);
+            logger.debug("Dsp .:- "+ dspInfo.getPingURL()+ " response:- "+ response.getResponse());
             sspBean.getQpsCounter().decrease(dspInfo.getUserId());
+            code = response.getCode();
             if(response.getCode() == HttpStatus.OK.value() && !"".equals(response.getResponse())){
                 try{
                     OpenRtb.BidResponse.Builder responseBuilder = this.sspBean.getRtbGenerator().getBidResponse(response.getResponse());
                     if(this.sspBean.getRtbGenerator().isValid(this.bidRequest, responseBuilder)){
-                        logger.info("saving  winning bid "+ dspInfo.getPingURL());
-                        this.sspBean.getMongoRepository().saveWinningBid(response.getResponse());
-                        logger.info("saved  winning bid"+ dspInfo.getPingURL());
                         BidData bidData = new BidData();
                         bidData.setAdm(responseBuilder.getSeatbid(0).getBid(0).getAdm());
                         bidData.setNurl(responseBuilder.getSeatbid(0).getBid(0).getNurl());
@@ -65,21 +68,40 @@ public class DSPTask implements Callable<DSPResponse> {
                         bidData.setAuctionCurrency(responseBuilder.getCur());
                         response.setBidData(bidData);
                         return  response;
+                    }else{
+                        response.setCode(417);
                     }
                 }catch (IOException e){
-                    logger.info("Unable to parse DSP response:- URL"+ dspInfo.getPingURL()+" code "+ response.getCode()+" Message:- "+ response.getResponse()+" "+e.getMessage());
+                    logger.error("Unable to parse DSP response:- URL"+ dspInfo.getPingURL()+" code "+ response.getCode()+" Message:- "+ response.getResponse()+" "+e.getMessage());
+                    response.setCode(417);
                 }
             }else{
-                logger.info("DSP Response status:- URL"+ dspInfo.getPingURL()+" code "+ response.getCode()+" Message:- "+ response.getResponse());
+                logger.debug("DSP Response status:- URL"+ dspInfo.getPingURL()+" code "+ response.getCode()+" Message:- "+ response.getResponse());
             }
         }catch (QPSLimitOverFlowException ex){
-           logger.info("DSP QPS limit exceeded. "+ dspInfo.getId() + dspInfo.getPingURL());
+           logger.error("DSP QPS limit exceeded. "+ dspInfo.getId() + dspInfo.getPingURL());
+           code = ex.getCode();
         }catch (SSPURLException ex){
-            logger.info("DSP ping url has issue URL:- "+ dspInfo.getPingURL()+ " Issue:- "+ ex.getMessage());
+            logger.error("DSP ping url has issue URL:- "+ dspInfo.getPingURL()+ " Issue:- "+ ex.getMessage());
             sspBean.getQpsCounter().decrease(dspInfo.getUserId());
+            code = ex.getCode();
         } catch (Exception ex){
-            ex.printStackTrace();
+            logger.error(ex.toString());
+            code  = 500;
         }
-        return null;
+        if(null == response){
+            response = new DSPResponse();
+            response.setCode(code);
+            response.setDspInfo(dspInfo);
+        }
+        JSONParser jsonParser = new JSONParser();
+        if(response.getCode()==200){
+            responseAsJSON = (JSONObject) jsonParser.parse(response.getResponse());
+        }else{
+            responseAsJSON = new JSONObject();
+        }
+        responseAsJSON.put("error_code", response.getCode());
+        response.setResponseAsJSON(responseAsJSON);
+        return response;
     }
 }

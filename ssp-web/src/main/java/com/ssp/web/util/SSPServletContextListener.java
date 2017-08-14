@@ -1,5 +1,6 @@
 package com.ssp.web.util;
 
+import com.ssp.api.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -10,6 +11,7 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import java.util.TimeZone;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,6 +26,7 @@ public class SSPServletContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         logger.info("Initialized... ");
+        TimeZone.setDefault(TimeZone.getTimeZone(Constant.TIME_ZONE));
     }
 
     @Override

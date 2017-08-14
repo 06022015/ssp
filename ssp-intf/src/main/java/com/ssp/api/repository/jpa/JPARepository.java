@@ -2,6 +2,7 @@ package com.ssp.api.repository.jpa;
 
 import com.ssp.api.entity.jpa.AdBlockInfo;
 import com.ssp.api.entity.jpa.DSPInfo;
+import com.ssp.api.entity.jpa.WinNoticeEntity;
 
 import java.util.List;
 
@@ -17,5 +18,7 @@ public interface JPARepository {
     List<DSPInfo> getAllDSP(String adFormat);
 
     AdBlockInfo  getAdBlockInfo(Long pubId, Long adBlockId);
+
+    void saveWinningBid(WinNoticeEntity winNotice);
 
 }

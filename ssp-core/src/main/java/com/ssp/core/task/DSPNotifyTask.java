@@ -31,6 +31,7 @@ public class DSPNotifyTask implements Callable<Integer> {
 
     public Integer call() throws Exception {
         try{
+            logger.debug("Notifying winning bid:- "+ notifyURL);
             return sspBean.getDspService().notifyDSP(notifyURL);
         }catch (SSPURLException ex){
             logger.error("Notify URL issue:- "+notifyURL + " message:- " + ex.getMessage());

@@ -56,10 +56,16 @@
                 <prop key="hibernate.cache.use_query_cache">${hibernate.cache.query}</prop>
                 <prop key="hibernate.cache.ehcache.native_client_address">${hibernate.ehcache.native.client.address}</prop>
                 <prop key="net.sf.ehcache.configurationResourceName">${hibernate.eh.cache.resource.name}</prop>
-                <prop key="hibernate.dbcp.initialSize">5</prop>
-                <prop key="hibernate.dbcp.maxActive">100</prop>
-                <prop key="hibernate.dbcp.maxIdle">10</prop>
-                <prop key="hibernate.dbcp.minIdle">1</prop>
+
+                <prop key="hibernate.c3p0.min_size">50</prop>
+                <prop key="hibernate.c3p0.max_size">200</prop>
+                <prop key="hibernate.c3p0.timeout">500</prop>
+                <prop key="hibernate.c3p0.max_statements">50</prop>
+                <prop key="hibernate.c3p0.idle_test_period">3000</prop>
+                <!--<prop key="hibernate.dbcp.initialSize">50</prop>
+                <prop key="hibernate.dbcp.maxActive">200</prop>
+                <prop key="hibernate.dbcp.maxIdle">50</prop>
+                <prop key="hibernate.dbcp.minIdle">10</prop>-->
 
             </props>
         </property>

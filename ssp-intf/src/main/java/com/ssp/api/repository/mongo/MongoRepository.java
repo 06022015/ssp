@@ -1,5 +1,7 @@
 package com.ssp.api.repository.mongo;
 
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * User: ashqures
@@ -11,6 +13,6 @@ public interface MongoRepository {
 
      void saveRTBJSON(String bidRequest);
 
-    void saveWinningBid(String winningBid);
+    void saveDSPResponse(String winningBid);
 
 }

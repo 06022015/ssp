@@ -5,11 +5,13 @@ import com.maxmind.db.Reader;
 import com.maxmind.geoip2.DatabaseProvider;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
-import com.maxmind.geoip2.model.CityResponse;
+import com.maxmind.geoip2.model.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,20 +24,22 @@ public class GeoLocationService {
 
     private DatabaseProvider provider;
     private String dbLocation;
-    private boolean cache;
+    private boolean cache = true;
+    private Map<String,CityResponse> cacheMap;
 
     public GeoLocationService(String dbLocation, boolean cache) throws IOException {
         this.dbLocation = dbLocation;
         this.cache = cache;
         init();
+        cacheMap = new ConcurrentHashMap<String, CityResponse>();
     }
 
     private void init() throws IOException {
         File dbFile = new File(dbLocation);
-        DatabaseReader.Builder geoBuilder =  new DatabaseReader.Builder(dbFile);
+        DatabaseReader.Builder geoBuilder =  new DatabaseReader.Builder(dbFile)
+                .fileMode(Reader.FileMode.MEMORY);
         if(cache){
             geoBuilder.withCache(new CHMCache());
-            geoBuilder.fileMode(Reader.FileMode.MEMORY_MAPPED);
         }
         provider = geoBuilder.build();
     }

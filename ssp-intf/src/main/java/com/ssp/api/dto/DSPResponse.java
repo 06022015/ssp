@@ -1,6 +1,7 @@
 package com.ssp.api.dto;
 
 import com.ssp.api.entity.jpa.DSPInfo;
+import org.json.simple.JSONObject;
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,6 +16,7 @@ public class DSPResponse {
     private DSPInfo dspInfo;
     private String response;
     private BidData bidData;
+    private JSONObject responseAsJSON;
 
     public Integer getCode() {
         return code;
@@ -46,5 +48,13 @@ public class DSPResponse {
 
     public void setBidData(BidData bidData) {
         this.bidData = bidData;
+    }
+
+    public JSONObject getResponseAsJSON() {
+        return responseAsJSON;
+    }
+
+    public void setResponseAsJSON(JSONObject responseAsJSON) {
+        this.responseAsJSON = responseAsJSON;
     }
 }

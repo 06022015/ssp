@@ -14,9 +14,12 @@ public class ClientRequest {
 
     public final static String CONTENT_TYPE = "application/json";
     public final static String ACCEPT_TYPE = "application/json";
+    public final static String ACCEPT_LANGUAGE = "en-US,en;q=0.5";
+
 
     public final static String CONTENT_TYPE_NAME = "Content-Type";
     public final static String ACCEPT_TYPE_NAME = "Accept";
+    public final static String ACCEPT_LANGUAGE_NAME = "Accept-Language";
     public final static String CONNECTION_TIMEOUT_NAME = "connectionTimeout";
     public final static String READ_TIMEOUT_NAME = "readTimeout";
     public final static String USE_CACHE_NAME = "userCache";
@@ -24,12 +27,13 @@ public class ClientRequest {
     private final String url;
     private String method;
     private String content;
+    private boolean compressed = false;
     private Map<String,Object> property;
 
     private void init(){
         this.property = new HashMap<String,Object>();
         this.property.put(CONTENT_TYPE_NAME, CONTENT_TYPE);
-        this.property.put(ACCEPT_TYPE_NAME, ACCEPT_TYPE);
+        //this.property.put(ACCEPT_TYPE_NAME, ACCEPT_TYPE);
     }
 
     public ClientRequest(String url, ClientMethod method) {
@@ -56,6 +60,14 @@ public class ClientRequest {
 
     public String getUrl() {
         return url;
+    }
+
+    public boolean isCompressed() {
+        return compressed;
+    }
+
+    public void setCompressed(boolean compressed) {
+        this.compressed = compressed;
     }
 
     public String getMethod() {

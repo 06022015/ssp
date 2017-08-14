@@ -22,7 +22,7 @@ public class DSPInfo{
     private Integer qps;
     private Integer maxResponseTime;
     private String requestFormat;
-    private int compressRequest;
+    private boolean compressRequest;
 
     public DSPInfo() {
     }
@@ -32,7 +32,7 @@ public class DSPInfo{
         this.pingURL = pingURL;
         this.qps = qps;
         this.requestFormat = requestFormat;
-        this.compressRequest = compressRequest;
+        this.compressRequest = compressRequest>0;
     }
 
     public Long getId() {
@@ -83,11 +83,11 @@ public class DSPInfo{
         this.requestFormat = requestFormat;
     }
 
-    public int getCompressRequest() {
+    public boolean isCompressRequest() {
         return compressRequest;
     }
 
-    public void setCompressRequest(int compressRequest) {
+    public void setCompressRequest(boolean compressRequest) {
         this.compressRequest = compressRequest;
     }
 }

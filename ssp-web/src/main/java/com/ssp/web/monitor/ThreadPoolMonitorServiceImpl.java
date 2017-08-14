@@ -48,7 +48,7 @@ public class ThreadPoolMonitorServiceImpl implements ThreadPoolMonitorService {
         status.setCompletedTaskCount(executor.getThreadPoolExecutor().getCompletedTaskCount());
         status.setTaskCount(executor.getThreadPoolExecutor().getTaskCount());
         status.setTerminated(executor.getThreadPoolExecutor().isTerminated());
-        logger.info(status.toString());
+        logger.debug(status.toString());
         return status;
     }
 

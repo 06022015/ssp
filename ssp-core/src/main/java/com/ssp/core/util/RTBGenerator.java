@@ -1,6 +1,7 @@
 package com.ssp.core.util;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.openrtb.OpenRtb;
 import com.google.openrtb.OpenRtb.BidResponse;
 import com.google.openrtb.OpenRtb.AdPosition;
 import com.google.openrtb.OpenRtb.DeviceType;
@@ -19,6 +20,7 @@ import com.ssp.api.entity.jpa.AdBlockInfo;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
@@ -47,51 +49,68 @@ public class RTBGenerator {
                     .setId(UUID.randomUUID().toString())
                     .setAt(AuctionType.FIRST_PRICE)
                     .setTmax(120)
-                    .addCur("USD")
+                    .addCur(Constant.CURRENCY)
                     .setTest(false)
                     .setRegs(Regs.newBuilder()
                             .setCoppa(false))
                     .addImp(BidRequest.Imp.newBuilder()
+                            .setInstl(false)
                             .setId("1")
                             .setBidfloor(adBlockInfo.getFloorPrice())
                             .setBanner(Imp.Banner.newBuilder()
+                                    //.setBtype()//Not required. based on discussion over skype.
                                     .setW(adBlockInfo.getWidth())
                                     .setH(adBlockInfo.getHeight())
                                     .setPos(AdPosition.forNumber(Integer.parseInt(adBlockInfo.getAdPosition())))
                                     .setTopframe(true)
                                     .addBattr(CreativeAttribute.USER_INTERACTIVE)
                                     .setId("1"))
+                            .setTagid("") //Empty value. Confirmed from Hari
                             .setSecure(false))
+                    .addAllBcat(new ArrayList<String>(0))//Confirmed from Hari
+                    .addAllBadv(new ArrayList<String>(0))//Confirmed from Hari
                     .setSite(Site.newBuilder()
                             .setId(adBlockInfo.getSiteId()+"")
                             .setName(adBlockInfo.getSiteName())
                             .setDomain(adBlockInfo.getSiteURL())
                             .addAllCat(Arrays.asList(adBlockInfo.getSiteCat(), adBlockInfo.getAdBlockCat()))
                             .setPrivacypolicy(true)
+                            .setKeywords("") //Empty value. Confirmed from Hari
+                            .addAllSectioncat(new ArrayList<String>(0))//Empty value. Confirmed from Hari
+                            .addAllPagecat(new ArrayList<String>(0))//Empty value. Confirmed from Hari
                             .setPage(parameter.get(Constant.REF_URL))
                             .setRef("http://referringsite.com/referringpage.htm")
                             .setPublisher(Publisher.newBuilder()
                                     .setId(adBlockInfo.getUserId()+"")
+                                    .addCat(adBlockInfo.getAdBlockCat())
+                                    .setDomain(adBlockInfo.getWebsite())
                                     .setName(adBlockInfo.getFirstName()+ " "+ adBlockInfo.getLastName())))
                     .setDevice(Device.newBuilder()
+                            .setDnt(false)
+                            .setLmt(Boolean.parseBoolean(parameter.get(Constant.LMT)))
                             .setGeo(Geo.newBuilder()
                                     .setLat((location.getLocation().getLatitude() != null) ? location.getLocation().getLatitude() : 0.000000)
                                     .setLon((location.getLocation().getLongitude() != null) ? location.getLocation().getLongitude() : 0.000000)
                                     .setCountry((location.getCountry().getIsoCode() != null) ? location.getCountry().getIsoCode() : "")
                                     .setCity((location.getCity().getName() != null) ? location.getCity().getName() : "")
                                     .setZip((location.getPostal().getCode() != null) ? location.getPostal().getCode() : "")
+                                    .setMetro(location.getLocation().getMetroCode()+"")
                                     .setType(LocationType.IP)
                                     .setUtcoffset(200))
+                                    //Region not required . based on discussion over skype with Hari
                             .setIp(parameter.get(Constant.IP))
                             .setUa(parameter.get(Constant.USER_AGENT))
-                            /*.setOs(parameter.get(Constant.DEVICE_OS))*/
+                            .setOs(parameter.get(Constant.DEVICE_OS))
                             .setLanguage(parameter.get(Constant.DEVICE_LANG))
-                            /*.setMake(parameter.get(Constant.DEVICE_MAKE))*/
+                            .setMake(parameter.get(Constant.DEVICE_MAKE))
                             .setJs(true)
                             .setConnectiontype(getConnectionType(location))
                             .setDevicetype(getDeviceType(parameter.get(Constant.FORM_FACTOR)))
-                            /*.setOsv(parameter.get(Constant.DEVICE_OS_VERSION))*/
-                            /*.setModel(parameter.get(Constant.DEVICE_MODEL))*/)
+                            .setOsv(parameter.get(Constant.DEVICE_OS_VERSION))
+                            .setModel(parameter.get(Constant.DEVICE_MODEL))
+                            .setHwv(parameter.get(Constant.DEVICE_HWV)))
+                    .setUser(User.newBuilder().setId(adBlockInfo.getUserId()+""))
+                    //.setExtension()//Not required on current phase. Based on discussion over skype.
                     .build();
 
         }catch (Exception e){

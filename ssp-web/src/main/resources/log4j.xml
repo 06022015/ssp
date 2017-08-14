@@ -10,97 +10,138 @@
         </layout>
     </appender>
 
-    <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
-        <!--<param name="append" value="false" />-->
+    <!--<appender name="ssp" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <param name="append" value="true"/>
         <param name="maxFileSize" value="10KB" />
         <param name="maxBackupIndex" value="10" />
         <param name="DatePattern" value="'.'yyyy-MM-dd" />
-        <!-- For Tomcat -->
-        <param name="file" value="${catalina.home}/logs/ssp.log" />
+        <param name="appender" value="true"/>
+        <param name="file" value="${catalina.home}/logs/ssp.log"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern"
-                   value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+                   value="%d %p [%t] %c{1}.%M(%L) | %m%n"/>
         </layout>
+               &lt;!&ndash;${catalina.base}/&ndash;&gt;
+    </appender>-->
+    <appender name="ssp" class="ch.qos.logback.core.rolling.RollingFileAppender" >
+        <param name="append" value="true"/>
+        <file>${catalina.base}/logs/ssp.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>ssp.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- keep 30 days' worth of history capped at 3GB total size -->
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
     </appender>
 
-    <appender name="poolMonitor" class="org.apache.log4j.DailyRollingFileAppender">
-        <!--<param name="append" value="false" />-->
-        <param name="maxFileSize" value="10KB" />
-        <param name="maxBackupIndex" value="10" />
-        <param name="DatePattern" value="'.'yyyy-MM-dd" />
-        <!-- For Tomcat -->
-        <param name="file" value="${catalina.home}/logs/ssp_pool.log" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern"
-                   value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
-        </layout>
-    </appender>
+        <!--<appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
+            &lt;!&ndash;<param name="append" value="false" />&ndash;&gt;
+            <param name="maxFileSize" value="10KB" />
+            <param name="maxBackupIndex" value="10" />
+            <param name="DatePattern" value="'.'yyyy-MM-dd" />
+            &lt;!&ndash; For Tomcat &ndash;&gt;
+            <param name="file" value="logs/ssp.log" />
+            <layout class="org.apache.log4j.PatternLayout">
+                <param name="ConversionPattern"
+                       value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+            </layout>
+        </appender>-->
 
-    <!--<logger name="net.sf.ehcache">
-        <level value="ERROR"/>
-    </logger>-->
+<appender name="poolMonitor" class="org.apache.log4j.DailyRollingFileAppender">
+<!--<param name="append" value="false" />-->
+<param name="maxFileSize" value="10KB" />
+<param name="maxBackupIndex" value="10" />
+<param name="DatePattern" value="'.'yyyy-MM-dd" />
+<!-- For Tomcat -->
+<param name="file" value="${catalina.home}/logs/ssp_pool.log" />
+<layout class="org.apache.log4j.PatternLayout">
+    <param name="ConversionPattern"
+           value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+</layout>
+</appender>
 
-    <!-- Suppress success logging from InteractiveAuthenticationSuccessEvent -->
-    <logger name="org.springframework.security">
-        <level value="ERROR"/>
-    </logger>
+        <!--<logger name="net.sf.ehcache">
+            <level value="ERROR"/>
+        </logger>-->
 
-    <logger name="org.apache">
-        <level value="WARN"/>
-    </logger>
+        <!-- Suppress success logging from InteractiveAuthenticationSuccessEvent -->
+<logger name="org.springframework.security">
+<level value="ERROR"/>
+</logger>
 
-    <logger name="org.apache.velocity">
-        <level value="FATAL"/>
-    </logger>
+<logger name="org.apache">
+<level value="WARN"/>
+</logger>
 
-    <!-- Suppress invalid warning messages from JSF -->
-    <logger name="org.apache.myfaces">
-        <level value="ERROR"/>
-    </logger>
+<logger name="org.apache.velocity">
+<level value="FATAL"/>
+</logger>
 
-    <logger name="org.dbunit">
-        <level value="WARN"/>
-    </logger>
+        <!-- Suppress invalid warning messages from JSF -->
+<logger name="org.apache.myfaces">
+<level value="ERROR"/>
+</logger>
 
-    <logger name="org.hibernate">
-        <level value="WARN"/>
-    </logger>
+<logger name="org.dbunit">
+<level value="WARN"/>
+</logger>
 
-    <!--logger name="org.hibernate.SQL">
-        <level value="DEBUG"/>
-    </logger-->
+<logger name="org.hibernate">
+<level value="WARN"/>
+</logger>
 
-    <logger name="org.springframework">
-        <level value="WARN"/>
-    </logger>
+        <!--logger name="org.hibernate.SQL">
+            <level value="DEBUG"/>
+        </logger-->
 
-    <logger name="com.ssp">
-        <level value="DEBUG"/>
-    </logger>
+<logger name="org.springframework">
+<level value="WARN"/>
+</logger>
 
-    <!--<logger name="log4j.category.org.springframework.data.mongodb.core.MongoTemplate">
-        <level value="DEBUG"/>
-        <level value="WARN"/>
-        <level value="INFO"/>
-        <level value="ERROR"/>
-    </logger>-->
+<logger name="com.ssp">
+<level value="DEBUG"/>
+<level value="WARN"/>
+<level value="INFO"/>
+<level value="ERROR"/>
+<appender-ref ref="ssp"/>
+</logger>
 
-    <logger name="com.ssp.web.monitor">
-        <level value="DEBUG"/>
-        <level value="WARN"/>
-        <level value="INFO"/>
-        <level value="ERROR"/>
-        <root>
-            <appender-ref ref="poolMonitor"/>
-        </root>
-    </logger>
+        <!--<logger name="log4j.category.org.springframework.data.mongodb.core.MongoTemplate">
+            <level value="DEBUG"/>
+            <level value="WARN"/>
+            <level value="INFO"/>
+            <level value="ERROR"/>
+        </logger>-->
 
-    <root>
-        <level value="DEBUG"/>
-        <level value="WARN"/>
-        <level value="INFO"/>
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-    </root>
+<logger name="com.ssp.web.monitor">
+<level value="DEBUG"/>
+<level value="WARN"/>
+<level value="INFO"/>
+<level value="ERROR"/>
+<appender-ref ref="poolMonitor"/>
+<!--<root>
+    <appender-ref ref="poolMonitor"/>
+</root>-->
+</logger>
 
-</log4j:configuration>
+        <!--<root>
+            <level value="DEBUG"/>
+            <level value="WARN"/>
+            <level value="INFO"/>
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>-->
+<root>
+<priority value="ALL" />
+<level value="DEBUG"/>
+<level value="WARN"/>
+<level value="INFO"/>
+<level value="ERROR"/>
+<appender-ref ref="ssp"/>
+</root>
+
+        </log4j:configuration>
