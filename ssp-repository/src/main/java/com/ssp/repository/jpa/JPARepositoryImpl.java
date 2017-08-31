@@ -35,7 +35,7 @@ public class JPARepositoryImpl implements JPARepository {
     public List<DSPInfo> getAllDSP(String adFormat) {
         SQLQuery sqlQuery = sessionFactory.getCurrentSession().createSQLQuery(DSP_DETAIL_QUERY);
         sqlQuery.setParameter("adFormat", adFormat)
-                .setResultTransformer(new AliasToBeanConstructorResultTransformer(DSPInfo.class.getConstructors()[1]))
+                .setResultTransformer(new AliasToBeanConstructorResultTransformer(DSPInfo.class.getConstructors()[0]))
                 .setCacheRegion("api_users")
                 .setCacheMode(CacheMode.NORMAL);
         return sqlQuery.list();

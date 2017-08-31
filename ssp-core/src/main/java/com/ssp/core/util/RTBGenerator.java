@@ -49,7 +49,7 @@ public class RTBGenerator {
                     .setId(UUID.randomUUID().toString())
                     .setAt(AuctionType.FIRST_PRICE)
                     .setTmax(120)
-                    .addCur(Constant.CURRENCY)
+                    .addCur(parameter.get(Constant.CURRENCY))
                     .setTest(false)
                     .setRegs(Regs.newBuilder()
                             .setCoppa(false))

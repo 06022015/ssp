@@ -111,7 +111,7 @@ public class DSPServiceImpl implements DSPService {
         ClientRequest request = new ClientRequest(dspInfo.getPingURL(), ClientMethod.POST);
         request.setContent(content);
         request.setCompressed(dspInfo.isCompressRequest());
-        request.put(ClientRequest.CONNECTION_TIMEOUT_NAME, 100);
+        request.put(ClientRequest.CONNECTION_TIMEOUT_NAME, 20);
         if (dspInfo.getMaxResponseTime() > 0)
             request.put(ClientRequest.READ_TIMEOUT_NAME, dspInfo.getMaxResponseTime());
         ClientResponse response = client.post(request);

@@ -22,13 +22,10 @@ public class DSPInfo{
     private Integer qps;
     private Integer maxResponseTime;
     private String requestFormat;
-    private boolean compressRequest;
-
-    public DSPInfo() {
-    }
+    private boolean compressRequest = false;
 
     public DSPInfo(Integer userId, String pingURL, Integer qps, String requestFormat, int compressRequest) {
-        this.userId = userId.longValue();
+        this.userId = null!= userId?userId.longValue():null;
         this.pingURL = pingURL;
         this.qps = qps;
         this.requestFormat = requestFormat;

@@ -39,8 +39,11 @@ public class SSPServlet extends HttpServlet {
         String dvId = req.getParameter(Constant.DIV_ID);
         try{
             Map<String, String> parameter = new HashMap<String, String>();
-            //parameter.put(Constant.IP, req.getRemoteAddr());
-            parameter.put(Constant.IP, "49.206.255.140");
+            String hostIp = req.getRemoteAddr();
+            if(hostIp.startsWith("127.0.0"))
+                parameter.put(Constant.IP, "49.206.255.140");
+            else
+                parameter.put(Constant.IP, req.getRemoteAddr());
             parameter.put(Constant.USER_AGENT, req.getHeader("User-Agent"));
             parameter.put(Constant.PUBLISHER_ID, req.getParameter(Constant.PUBLISHER_ID));
             parameter.put(Constant.BLOCK_ID, req.getParameter(Constant.BLOCK_ID));

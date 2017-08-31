@@ -36,25 +36,28 @@ public class MongoRepositoryImpl implements MongoRepository {
     }
 
     public void saveDSPResponse(String dspResponse) {
-        /*DBObject dbObject = (DBObject) JSON.parse(dspResponse);*/
         mongoTemplate.insert(dspResponse, getCollectionName(DSP_RESPONSE_COLLECTION));
     }
 
-    private String getCollectionName(String prefix){
+    private static String getCollectionName(String prefix){
         Calendar calendar = Calendar.getInstance();
         StringBuilder sb  = new StringBuilder(prefix);
-        sb.append(getAsDoubleDigit(Calendar.DATE));
-        sb.append(getAsDoubleDigit(calendar.get(Calendar.MONTH)));
+        sb.append(getAsDoubleDigit(calendar.get(Calendar.DATE)));
+        sb.append(getAsDoubleDigit(calendar.get(Calendar.MONTH)+1));
         sb.append(calendar.get(Calendar.YEAR));
         sb.append(getAsDoubleDigit(calendar.get(Calendar.HOUR_OF_DAY)));
         return sb.toString();
     }
 
-    private String getAsDoubleDigit(int number){
+    private  static String getAsDoubleDigit(int number){
         if(number/10==0)
             return "0"+number;
         else
             return number+"";
 
+    }
+
+    public static void main(String args[]){
+         System.out.println(getCollectionName(RTB_REQUEST_COLLECTION));
     }
 }

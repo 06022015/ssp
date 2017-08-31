@@ -65,7 +65,7 @@ public class SSPHttpClient {
                 connection.setUseCaches(true);
             connection.setRequestProperty(ClientRequest.ACCEPT_LANGUAGE_NAME, ClientRequest.ACCEPT_LANGUAGE);
             connection.setRequestProperty(ClientRequest.CONTENT_TYPE_NAME, ClientRequest.CONTENT_TYPE);
-            //connection.setRequestProperty(ClientRequest.ACCEPT_TYPE_NAME, request.getProperty().get(ClientRequest.CONTENT_TYPE_NAME).toString());
+            connection.setRequestProperty(ClientRequest.ACCEPT_TYPE_NAME, request.getProperty().get(ClientRequest.CONTENT_TYPE_NAME).toString());
             if (request.getProperty().containsKey(ClientRequest.CONNECTION_TIMEOUT_NAME))
                 connection.setConnectTimeout((Integer) request.getProperty().get(ClientRequest.CONNECTION_TIMEOUT_NAME));
             if (request.getProperty().containsKey(ClientRequest.READ_TIMEOUT_NAME))
@@ -115,7 +115,7 @@ public class SSPHttpClient {
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
-                throw new HttpConnectionException(ex.getCause(), "Unable to connect to server");
+                throw new HttpConnectionException("Unable to connect to server",ex.getCause(),  404);
             } finally {
                 close(reader);
             }
@@ -152,48 +152,8 @@ public class SSPHttpClient {
                 }
             };
             thread.start();
-            //Thread.sleep(1);
+            Thread.sleep(2);
         }
-    }
-
-    public static void testParellel(final int index) {
-        ExecutorService executorService = Executors.newFixedThreadPool(200);
-        List<Callable<String>> callables = new ArrayList<Callable<String>>();
-        for (int i = 0; i < 1; i++) {
-            Callable<String> callable = new Callable<String>() {
-                public String call() throws Exception {
-                    return testSSP(index);
-                }
-            };
-            callables.add(callable);
-        }
-        long startTime = Calendar.getInstance().getTimeInMillis();
-        System.out.println("Thread Number" + index + " Start time:- " + startTime);
-        List<Future<String>> requests = null;
-        try {
-            requests = executorService.invokeAll(callables);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Thread Number" + index + " Mid time:- " + Calendar.getInstance().getTimeInMillis());
-        executorService.shutdown();
-        while (!executorService.isTerminated()) {
-
-        }
-        long endTime = Calendar.getInstance().getTimeInMillis();
-        System.out.println("Thread Number" + index + " End time:- " + endTime);
-        System.out.println("Thread Number" + index + " Diff:- " + (endTime - startTime));
-        for (Future<String> future : requests) {
-            try {
-                //future.get();
-                System.out.println(future.get());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println("Complete time:- " + new Date());
     }
 
     public static String testSSP(Integer pubId) {
@@ -227,150 +187,10 @@ public class SSPHttpClient {
         long startTime = Calendar.getInstance().getTimeInMillis();
         System.out.println("Thread Number" + count + " Start time:- " + startTime);
         SSPHttpClient client = new SSPHttpClient();
-        ClientRequest clientRequest = new ClientRequest("http://182.72.85.2:8010/development/yayimla_dev/dsp/dreamSSP.php?ex=186", ClientMethod.POST);
-        clientRequest.put(ClientRequest.CONNECTION_TIMEOUT_NAME, 100);
-        clientRequest.put(ClientRequest.READ_TIMEOUT_NAME, 200);
-        clientRequest.setContent("{  \n" +
-                "   \"id\":\"22eae5d8-8ce9-49dd-858c-a0b34554203d\",\n" +
-                "   \"imp\":[  \n" +
-                "      {  \n" +
-                "         \"id\":\"1\",\n" +
-                "         \"banner\":{  \n" +
-                "            \"w\":300,\n" +
-                "            \"h\":250,\n" +
-                "            \"id\":\"1\",\n" +
-                "            \"battr\":[  \n" +
-                "               13\n" +
-                "            ],\n" +
-                "            \"pos\":1,\n" +
-                "            \"topframe\":1\n" +
-                "         },\n" +
-                "         \"bidfloor\":0.5199999809265137,\n" +
-                "         \"secure\":0\n" +
-                "      }\n" +
-                "   ],\n" +
-                "   \"site\":{  \n" +
-                "      \"id\":\"1\",\n" +
-                "      \"name\":\"W3 Schools\",\n" +
-                "      \"domain\":\"https://www.w3schools.com\",\n" +
-                "      \"cat\":[  \n" +
-                "         \"IAB1\",\n" +
-                "         \"IAB4-1\"\n" +
-                "      ],\n" +
-                "      \"page\":\"http://www.foobar.com/1234.html\",\n" +
-                "      \"ref\":\"http://referringsite.com/referringpage.htm\",\n" +
-                "      \"privacypolicy\":1,\n" +
-                "      \"publisher\":{  \n" +
-                "         \"id\":\"3\",\n" +
-                "         \"name\":\"dreamajax adserver\"\n" +
-                "      }\n" +
-                "   },\n" +
-                "   \"device\":{  \n" +
-                "      \"ua\":\"Mozilla/5.0 Firefox/26.0\",\n" +
-                "      \"geo\":{  \n" +
-                "         \"lat\":20.0,\n" +
-                "         \"lon\":77.0,\n" +
-                "         \"type\":2,\n" +
-                "         \"country\":\"IN\",\n" +
-                "         \"city\":\"\",\n" +
-                "         \"zip\":\"\",\n" +
-                "         \"utcoffset\":200\n" +
-                "      },\n" +
-                "      \"ip\":\"49.206.255.140\",\n" +
-                "      \"devicetype\":1,\n" +
-                "      \"js\":1,\n" +
-                "      \"language\":\"en\",\n" +
-                "      \"connectiontype\":0\n" +
-                "   },\n" +
-                "   \"test\":0,\n" +
-                "   \"at\":1,\n" +
-                "   \"tmax\":120,\n" +
-                "   \"cur\":[  \n" +
-                "      \"USD\"\n" +
-                "   ],\n" +
-                "   \"regs\":{  \n" +
-                "      \"coppa\":0\n" +
-                "   }\n" +
-                "}");
-        //HttpURLConnection connection = client.getConnection(clientRequest);
-        try {
-            ClientResponse response = client.post(clientRequest);
-            long endTime = Calendar.getInstance().getTimeInMillis();
-            System.out.println("Thread Number" + count + " End time:- " + endTime);
-            System.out.println("Thread Number" + count + " Diff:- " + (endTime - startTime));
-            System.out.println(response.getResponse());
-            return response.getResponse();
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Unable to write request:- " + e.getMessage());
-            throw new SSPURLException("Unable to write request", e.getCause(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public static String testForeAlertUser(Integer count) {
-        long startTime = Calendar.getInstance().getTimeInMillis();
-        System.out.println("Thread Number" + count + " Start time:- " + startTime);
-        SSPHttpClient client = new SSPHttpClient();
-        ClientRequest clientRequest = new ClientRequest("http://localhost:8080/forealert/services/v1/user", ClientMethod.POST);
-        clientRequest.setContent("{  \n" +
-                "   \"uuId\":\"asdfajhsgf2342hjasdf768df"+count+"\",\n" +
-                "   \"name\":\"Rizwan Qureshi"+count+"\",\n" +
-                "   \"email\":\"rizwanqureshi"+count+"@gmail.com\",\n" +
-                "   \"username\":\"rubinaqureshi"+count+"\",\n" +
-                "   \"mobile\":\"9886327"+count+"\",\n" +
-                "   \"location\":{  \n" +
-                "      \"latitude\":"+2342.33*count+",\n" +
-                "      \"longitude\":"+3424.23*count+",\n" +
-                "      \"altitude\":"+24*count+",\n" +
-                "      \"radius\":"+23*count+"\n" +
-                "   }\n" +
-                "}");
-        //HttpURLConnection connection = client.getConnection(clientRequest);
-        try {
-            ClientResponse response = client.post(clientRequest);
-            long endTime = Calendar.getInstance().getTimeInMillis();
-            System.out.println("Thread Number" + count + " End time:- " + endTime);
-            System.out.println("Thread Number" + count + " Diff:- " + (endTime - startTime));
-            System.out.println(response.getResponse());
-            return response.getResponse();
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Unable to write request:- " + e.getMessage());
-            throw new SSPURLException("Unable to write request", e.getCause(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public static String testForeAlertReportAnIssue(Integer count) {
-        long startTime = Calendar.getInstance().getTimeInMillis();
-        System.out.println("Thread Number" + count + " Start time:- " + startTime);
-        SSPHttpClient client = new SSPHttpClient();
-        ClientRequest clientRequest = new ClientRequest("http://localhost:8080/forealert/services/v1/message/report/issue", ClientMethod.POST);
-        clientRequest.setContent("{  \n" +
-                "   \"title\":\"Accident\",\n" +
-                "   \"message\":\"Accident happened in Indira Nagar\",\n" +
-                "   \"app\":\"EMG_APP\",\n" +
-                "   \"senderUUId\":\"asdfajhsgf2342hjasdf76"+count+"\",\n" +
-                "   \"messageLocation\":{  \n" +
-                "      \"latitude\":23.33"+count+",\n" +
-                "      \"longitude\":"+34.24*count+",\n" +
-                "      \"altitude\":"+23*count+",\n" +
-                "      \"radius\":"+23*count+",\n" +
-                "      \"warningRadius\":"+23*count+"\n" +
-                "   },\n" +
-                "   \"senderLocation\":{  \n" +
-                "      \"latitude\":"+2342.33*count+",\n" +
-                "      \"longitude\":"+3424.23*count+",\n" +
-                "      \"altitude\":"+23*count+",\n" +
-                "      \"radius\":"+23*count+",\n" +
-                "      \"warningRadius\":"+23*count+"\n" +
-                "   },\n" +
-                "   \"status\":\"A\",\n" +
-                "   \"type\":\"ZONE\",\n" +
-                "   \"isUserGEOMessage\":true,\n" +
-                "   \"device\":\"IOS\"\n" +
-                "}");
-        //DailyRollingFileAppender p =null;
-        //p.setL
+        ClientRequest clientRequest = new ClientRequest(" http://34.199.35.125/dsp1/dsp/dreamSSP.php?ex=186", ClientMethod.POST);
+        //clientRequest.put(ClientRequest.CONNECTION_TIMEOUT_NAME, 100);
+        //clientRequest.put(ClientRequest.READ_TIMEOUT_NAME, 200);
+        clientRequest.setContent("{\"id\":\"3e86d02c-c93d-429c-8f6d-5f0a716e69e6\",\"imp\":[{\"id\":\"1\",\"banner\":{\"w\":300,\"h\":250,\"id\":\"1\",\"battr\":[13],\"pos\":1,\"topframe\":1},\"bidfloor\":0.5199999809265137,\"secure\":0}],\"site\":{\"id\":\"1\",\"name\":\"W3 Schools\",\"domain\":\"https://www.w3schools.com\",\"cat\":[\"IAB1\",\"IAB4-1\"],\"page\":\"http://www.foobar.com/1234.html\",\"ref\":\"http://referringsite.com/referringpage.htm\",\"privacypolicy\":1,\"publisher\":{\"id\":\"3\",\"name\":\"dreamajax adserver\"}},\"device\":{\"ua\":\"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0\",\"geo\":{\"lat\":20.0,\"lon\":77.0,\"type\":2,\"country\":\"IN\",\"city\":\"\",\"zip\":\"\",\"utcoffset\":200},\"ip\":\"49.206.255.140\",\"devicetype\":1,\"js\":1,\"language\":\"en\",\"connectiontype\":0},\"test\":0,\"at\":1,\"tmax\":120,\"cur\":[\"USD\"],\"regs\":{\"coppa\":0}}");
         //HttpURLConnection connection = client.getConnection(clientRequest);
         try {
             ClientResponse response = client.post(clientRequest);

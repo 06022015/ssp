@@ -44,7 +44,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <outputDirectory>/Users/ashqures/config/apache-tomcat-7.0.61/webapps/</outputDirectory>
+                    <!--<outputDirectory>/Users/ashqures/config/apache-tomcat-7.0.61/webapps/</outputDirectory>-->
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>

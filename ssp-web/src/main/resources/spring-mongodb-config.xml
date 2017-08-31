@@ -13,14 +13,14 @@
         &lt;!&ndash; OPTIONAL: configure <mongo:options /> &ndash;&gt;
         <mongo:options auto-connect-retry="true" connections-per-host="200"  max-wait-time="200" />
     </mongo:mongo>-->
-
-    <mongo:mongo-client id="mongo" host="${ssp.mongo.host}" port="${ssp.mongo.port}" replica-set="127.0.0.1:27017">
+<!-- credentials="${ssp.mongo.username}:${ssp.mongo.password}@${ssp.mongo.database}" -->
+    <mongo:mongo-client id="mongo" host="${ssp.mongo.host}" port="${ssp.mongo.port}" replica-set="${ssp.mongo.host}:${ssp.mongo.port}"
+                        >
         <mongo:client-options write-concern="ACKNOWLEDGED"
                               connections-per-host="1000"
                               connect-timeout="30000"
-                              max-wait-time="10000"/>
+                              max-wait-time="10000" />
     </mongo:mongo-client>
-
 
     <!--
     replica-set="xxx.xx.x.xx:27017,xxx.xx.x.xx::27017" credentials="admin:abc_123@xyz"

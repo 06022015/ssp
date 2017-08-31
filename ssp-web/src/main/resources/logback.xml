@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="HOME_DIR" value="/Users/ashqures/config/apache-tomcat-7.0.61" />
+    <property name="HOME_DIR" value="${catalina.base}" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
