@@ -13,7 +13,7 @@
         &lt;!&ndash; OPTIONAL: configure <mongo:options /> &ndash;&gt;
         <mongo:options auto-connect-retry="true" connections-per-host="200"  max-wait-time="200" />
     </mongo:mongo>-->
-<!-- credentials="${ssp.mongo.username}:${ssp.mongo.password}@${ssp.mongo.database}" -->
+<!-- credentials="${ssp.mongo.username}:${ssp.mongo.password}@${ssp.mongo.database}"   credentials="${ssp.mongo.username}:${ssp.mongo.password}@${ssp.mongo.database}"-->
     <mongo:mongo-client id="mongo" host="${ssp.mongo.host}" port="${ssp.mongo.port}" replica-set="${ssp.mongo.host}:${ssp.mongo.port}"
                         >
         <mongo:client-options write-concern="ACKNOWLEDGED"

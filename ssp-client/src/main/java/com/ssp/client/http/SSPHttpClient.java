@@ -13,7 +13,6 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -144,7 +143,7 @@ public class SSPHttpClient {
     }
 
     public static void main(String args[]) throws InterruptedException {
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 3; i++) {
             final int index = i;
             Thread thread = new Thread() {
                 public void run() {
@@ -152,7 +151,7 @@ public class SSPHttpClient {
                 }
             };
             thread.start();
-            Thread.sleep(2);
+            Thread.sleep(200);
         }
     }
 
@@ -160,13 +159,15 @@ public class SSPHttpClient {
         long startTime = Calendar.getInstance().getTimeInMillis();
         System.out.println("Thread Number" + pubId + " Start time:- " + startTime);
         SSPHttpClient client = new SSPHttpClient();
-        ClientRequest clientRequest = new ClientRequest("http://localhost:8080/ssp/ReqAd?pub_id=3&block_id=1&ref=http://www.foobar.com/1234.html", ClientMethod.GET);
+        ClientRequest clientRequest = new ClientRequest("http://localhost:8080/ssp/ReqAd?pub_id=10&block_id=8&ref=http://www.foobar.com/1234.html", ClientMethod.GET);
         //clientRequest.addProperty(ClientRequest.CONNECTION_TIMEOUT_NAME, 100);
         //clientRequest.addProperty(ClientRequest.READ_TIMEOUT_NAME, 200);
         HttpURLConnection connection = client.getConnection(clientRequest);
         try {
             connection.setDoOutput(true);
             connection.addRequestProperty("User-Agent", "Mozilla/5.0 Firefox/26.0");
+            connection.addRequestProperty("referer", " http://104.145.233.9/~proddemo/adexchange/testing/tags/26-Sankeetha_SSP.php");
+            //connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19");
             String res = client.connect(connection).getResponse();
             long endTime = Calendar.getInstance().getTimeInMillis();
             System.out.println("Thread Number" + pubId + " End time:- " + endTime);

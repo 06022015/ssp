@@ -26,6 +26,7 @@ public class JPARepositoryImpl implements JPARepository {
     private static Logger logger = LoggerFactory.getLogger(JPARepositoryImpl.class);
 
     private static String DSP_DETAIL_QUERY = "SELECT u.id as user_id, d.ping_url, d.qps, d.request_format, d.compress_request FROM djax_users as u LEFT JOIN djax_dsp as d ON u.id = d.user_id WHERE u.user_type = 'dsp' AND d.request_format = :adFormat AND u.is_approved = 1 AND u.is_blocked = 0 AND u.is_deleted = 0";
+    private static String DSP_DETAIL_QUERY_1 = "SELECT u.id as user_id,d.ping_url,d.qps,d.request_format,d.compress_request FROM djax_users as u LEFT JOIN djax_dsp as d ON u.id = d.user_id WHERE u.user_type = 'dsp' AND FIND_IN_SET(:adFormat, d.request_format) AND u.is_approved = 1 AND u.is_blocked = 0 AND u.is_deleted = 0";
 
     private static String PUBLISHER_INFO_QUERY = "call publisherInfo(:userId, :adBlockId)";
 
@@ -33,7 +34,7 @@ public class JPARepositoryImpl implements JPARepository {
     private SessionFactory sessionFactory;
 
     public List<DSPInfo> getAllDSP(String adFormat) {
-        SQLQuery sqlQuery = sessionFactory.getCurrentSession().createSQLQuery(DSP_DETAIL_QUERY);
+        SQLQuery sqlQuery = sessionFactory.getCurrentSession().createSQLQuery(DSP_DETAIL_QUERY_1);
         sqlQuery.setParameter("adFormat", adFormat)
                 .setResultTransformer(new AliasToBeanConstructorResultTransformer(DSPInfo.class.getConstructors()[0]))
                 .setCacheRegion("api_users")

@@ -1,3 +1,4 @@
+package com.ssp.client.http;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -124,7 +125,8 @@ public class SSPTest {
         long startTime = Calendar.getInstance().getTimeInMillis();
         System.out.println("Thread Number" + pubId + " Start time:- " + startTime);
         SSPTest client = new SSPTest();
-        HttpURLConnection connection = client.getConnection("http://34.225.131.159:8080/ssp/ReqAd?pub_id=3&block_id=1&ref=http://www.foobar.com/1234.html","GET");
+        //HttpURLConnection connection = client.getConnection("http://34.225.131.159:8080/ssp/ReqAd?pub_id=3&block_id=1&ref=http://www.foobar.com/1234.html","GET");
+        HttpURLConnection connection = client.getConnection("http://localhost:8080/ssp/ReqAd?pub_id=3&block_id=1&ref=http://www.foobar.com/1234.html","GET");
         try {
             connection.setDoOutput(true);
             connection.addRequestProperty("User-Agent", "Mozilla/5.0 Firefox/26.0");

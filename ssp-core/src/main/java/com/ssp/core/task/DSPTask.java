@@ -8,6 +8,7 @@ import com.ssp.api.entity.jpa.DSPInfo;
 import com.ssp.api.exception.QPSLimitOverFlowException;
 import com.ssp.api.exception.SSPURLException;
 import com.ssp.core.util.SSPBean;
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
@@ -45,17 +46,18 @@ public class DSPTask implements Callable<DSPResponse> {
         DSPResponse response = null;
         JSONObject responseAsJSON = null;
         try{
-            if(null != dspInfo.getQps() && dspInfo.getQps()>0)
-                sspBean.getQpsCounter().increase(dspInfo.getUserId(), dspInfo.getQps());
+            if(null != dspInfo.getQps())
+                sspBean.getQpsCounter().checkQPS(dspInfo.getUserId(), dspInfo.getQps());
             logger.debug("Calling dsp..:- "+ dspInfo.getPingURL());
             response = sspBean.getDspService().dspBid(dspInfo, content);
             logger.debug("Dsp .:- "+ dspInfo.getPingURL()+ " response:- "+ response.getResponse());
             sspBean.getQpsCounter().decrease(dspInfo.getUserId());
             code = response.getCode();
-            if(response.getCode() == HttpStatus.OK.value() && !"".equals(response.getResponse())){
+            if(response.getCode() == HttpStatus.OK.value() && StringUtils.isNotEmpty(response.getResponse())){
                 try{
                     OpenRtb.BidResponse.Builder responseBuilder = this.sspBean.getRtbGenerator().getBidResponse(response.getResponse());
-                    if(this.sspBean.getRtbGenerator().isValid(this.bidRequest, responseBuilder)){
+                    if(this.sspBean.getRtbGenerator().isValid(this.bidRequest, responseBuilder)
+                            && isValidCat(this.bidRequest, responseBuilder)){
                         BidData bidData = new BidData();
                         bidData.setAdm(responseBuilder.getSeatbid(0).getBid(0).getAdm());
                         bidData.setNurl(responseBuilder.getSeatbid(0).getBid(0).getNurl());
@@ -67,7 +69,6 @@ public class DSPTask implements Callable<DSPResponse> {
                         bidData.setAuctionAdId(responseBuilder.getSeatbid(0).getBid(0).getAdid());
                         bidData.setAuctionCurrency(responseBuilder.getCur());
                         response.setBidData(bidData);
-                        return  response;
                     }else{
                         response.setCode(417);
                     }
@@ -79,8 +80,9 @@ public class DSPTask implements Callable<DSPResponse> {
                 logger.debug("DSP Response status:- URL"+ dspInfo.getPingURL()+" code "+ response.getCode()+" Message:- "+ response.getResponse());
             }
         }catch (QPSLimitOverFlowException ex){
-           logger.error("DSP QPS limit exceeded. "+ dspInfo.getId() + dspInfo.getPingURL());
-           code = ex.getCode();
+           logger.error("DSP QPS limit exceeded. "+ dspInfo.getUserId() + dspInfo.getPingURL());
+           //code = ex.getCode();
+           return null;
         }catch (SSPURLException ex){
             logger.error("DSP ping url has issue URL:- "+ dspInfo.getPingURL()+ " Issue:- "+ ex.getMessage());
             sspBean.getQpsCounter().decrease(dspInfo.getUserId());
@@ -95,7 +97,7 @@ public class DSPTask implements Callable<DSPResponse> {
             response.setDspInfo(dspInfo);
         }
         JSONParser jsonParser = new JSONParser();
-        if(response.getCode()==200){
+        if(response.getCode()==200 && StringUtils.isNotEmpty(response.getResponse())){
             responseAsJSON = (JSONObject) jsonParser.parse(response.getResponse());
         }else{
             responseAsJSON = new JSONObject();
@@ -103,5 +105,19 @@ public class DSPTask implements Callable<DSPResponse> {
         responseAsJSON.put("error_code", response.getCode());
         response.setResponseAsJSON(responseAsJSON);
         return response;
+    }
+     //Hari: Bid reqyest Site cat should match with any one fo the bit response cat or if Bid response cat is empty then its a valid response.
+    private boolean isValidCat(BidRequest bidRequest, OpenRtb.BidResponse.Builder responseBuilder){
+        boolean isValid = false;
+        if(responseBuilder.getSeatbid(0).getBid(0).getCatList().size()>0){
+            for(String cat : responseBuilder.getSeatbid(0).getBid(0).getCatList()){
+                if(bidRequest.getSite().getCatList().contains(cat)){
+                    isValid =  true;
+                    break;
+                }
+            }
+        }else
+            isValid = true;
+        return isValid;
     }
 }

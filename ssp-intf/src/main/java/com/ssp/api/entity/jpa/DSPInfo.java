@@ -1,11 +1,5 @@
 package com.ssp.api.entity.jpa;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
 
 /**
  * Created by IntelliJ IDEA.

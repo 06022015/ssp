@@ -40,15 +40,18 @@ public class SSPServlet extends HttpServlet {
         try{
             Map<String, String> parameter = new HashMap<String, String>();
             String hostIp = req.getRemoteAddr();
-            if(hostIp.startsWith("127.0.0"))
+            /*if(hostIp.startsWith("127.0.0"))
                 parameter.put(Constant.IP, "49.206.255.140");
             else
-                parameter.put(Constant.IP, req.getRemoteAddr());
+                parameter.put(Constant.IP, req.getRemoteAddr());*/
+            parameter.put(Constant.IP, req.getRemoteAddr());
             parameter.put(Constant.USER_AGENT, req.getHeader("User-Agent"));
             parameter.put(Constant.PUBLISHER_ID, req.getParameter(Constant.PUBLISHER_ID));
             parameter.put(Constant.BLOCK_ID, req.getParameter(Constant.BLOCK_ID));
             parameter.put(Constant.REF_URL, req.getParameter("ref"));
             parameter.put(Constant.DEVICE_LANG, req.getLocale().getLanguage());
+            String requestURL = req.getHeader("referer");
+            parameter.put(Constant.REQUESTER_URL, StringUtils.isNotEmpty(requestURL)?requestURL:"");
             deviceCap(parameter,req);
             SSPService service = (SSPService) ApplicationContextUtil.getApplicationContext().getBean("sspService");
             logger.debug("Reading service obj:-" + (Calendar.getInstance().getTimeInMillis() - startTime));
@@ -82,36 +85,30 @@ public class SSPServlet extends HttpServlet {
     }
 
 
-    private void deviceCap(Map<String, String> parameter,HttpServletRequest req){
+    private void deviceCap(Map<String, String> parameter, HttpServletRequest req) {
         /*WURFLHolder wurflHolder = (WURFLHolder) ApplicationContextUtil.getApplicationContext().getBean("wurflHolder");
             Device device = wurflHolder.getWURFLManager().getDeviceForRequest(req);*/
-        WURFLEngine wurflEngine = (WURFLEngine)ApplicationContextUtil.getApplicationContext().getBean("wurflEngine");
+        WURFLEngine wurflEngine = (WURFLEngine) ApplicationContextUtil.getApplicationContext().getBean("wurflEngine");
         Device device = wurflEngine.getDeviceForRequest(req);
         logger.debug("WURFL device := " + device.toString());
-        Map<String,String> deviceCap = device.getCapabilities();
-        logger.debug("Virtual capabilities"+device.getVirtualCapabilities().toString());
-        logger.debug("Capabilities"+deviceCap.toString());
-        String deviceOs = deviceCap.get(Constant.DEVICE_OS);
-        /*if(StringUtils.isNotBlank(deviceOs))*/
-            parameter.put(Constant.DEVICE_OS, StringUtils.isNotBlank(deviceOs)?deviceOs:"");
-        String deviceOsVersion = deviceCap.get(Constant.DEVICE_OS_VERSION);
-        /*if(StringUtils.isNotBlank(deviceOsVersion))*/
-            parameter.put(Constant.DEVICE_OS_VERSION, StringUtils.isNotBlank(deviceOsVersion)?deviceOsVersion:"");
+        Map<String, String> deviceVirCap = device.getVirtualCapabilities();
+        Map<String, String> deviceCap = device.getCapabilities();
+        logger.debug("Virtual capabilities" + deviceVirCap.toString());
+        logger.debug("Capabilities" + deviceCap.toString());
+        String deviceOs = deviceVirCap.get(Constant.DEVICE_ADVERTISE_DEVICE_OS);
+          deviceOs = StringUtils.isBlank(deviceOs)?deviceCap.get(Constant.DEVICE_OS):deviceOs;
+        parameter.put(Constant.DEVICE_OS, StringUtils.isNotBlank(deviceOs) ? deviceOs : "");
+        String deviceOsVersion = deviceVirCap.get(Constant.DEVICE_ADVERTISE_DEVICE_OS_VERSION);
+        deviceOsVersion = StringUtils.isBlank(deviceOsVersion)?deviceCap.get(Constant.DEVICE_OS_VERSION):deviceOsVersion;
+        parameter.put(Constant.DEVICE_OS_VERSION, StringUtils.isNotBlank(deviceOsVersion) ? deviceOsVersion : "");
         String deviceMake = deviceCap.get(Constant.DEVICE_MAKE);
-        /*if(StringUtils.isNotBlank(deviceMake))*/
-            parameter.put(Constant.DEVICE_MAKE, StringUtils.isNotBlank(deviceMake)?deviceMake:"");
+        parameter.put(Constant.DEVICE_MAKE, StringUtils.isNotBlank(deviceMake) ? deviceMake : "");
         String deviceModel = deviceCap.get(Constant.DEVICE_MODEL);
-        /*if(StringUtils.isNotBlank(deviceModel))*/
-            parameter.put(Constant.DEVICE_MODEL, StringUtils.isNotBlank(deviceModel)?deviceModel:"");
-        String formFactor = deviceCap.get(Constant.FORM_FACTOR);
-        /*if(StringUtils.isNotBlank(formFactor))*/
-            parameter.put(Constant.FORM_FACTOR, StringUtils.isNotBlank(formFactor)?formFactor:"");
-        /*String carrier = deviceCap.get(Constant.DEVICE_CARRIER);
-        parameter.put(Constant.DEVICE_CARRIER, StringUtils.isNotBlank(carrier)?carrier:"");*/
+        parameter.put(Constant.DEVICE_MODEL, StringUtils.isNotBlank(deviceModel) ? deviceModel : "");
+        String formFactor = deviceVirCap.get(Constant.FORM_FACTOR);
+        parameter.put(Constant.FORM_FACTOR, StringUtils.isNotBlank(formFactor) ? formFactor : "");
         String hwv = deviceCap.get(Constant.DEVICE_HWV);
-        parameter.put(Constant.DEVICE_HWV, StringUtils.isNotBlank(hwv)?hwv:"");
-
-
+        parameter.put(Constant.DEVICE_HWV, StringUtils.isNotBlank(hwv) ? hwv : "");
     }
 
     private String buildResponse(BidData bidData, String diveId){
@@ -138,7 +135,7 @@ public class SSPServlet extends HttpServlet {
     private String buildEmptyResponse(String divId){
         StringBuilder response = new StringBuilder("(function(callbackAd){var ao = {}; ao.status='");
         response.append("ERROR';");
-        response.append("ad.errorCode=42;");
+        response.append("ao.errorCode=42;");
         response.append("ao.divid='");
         response.append(divId);
         response.append("';ao.errorMessage='");

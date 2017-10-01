@@ -1,7 +1,6 @@
 package com.ssp.core.util;
 
 import com.codahale.metrics.MetricRegistry;
-import com.google.openrtb.OpenRtb;
 import com.google.openrtb.OpenRtb.BidResponse;
 import com.google.openrtb.OpenRtb.AdPosition;
 import com.google.openrtb.OpenRtb.DeviceType;
@@ -78,37 +77,14 @@ public class RTBGenerator {
                             .setKeywords("") //Empty value. Confirmed from Hari
                             .addAllSectioncat(new ArrayList<String>(0))//Empty value. Confirmed from Hari
                             .addAllPagecat(new ArrayList<String>(0))//Empty value. Confirmed from Hari
-                            .setPage(parameter.get(Constant.REF_URL))
-                            .setRef("http://referringsite.com/referringpage.htm")
+                            .setPage(parameter.get(Constant.REQUESTER_URL))  // It should be requester URL
+                            .setRef(parameter.get(Constant.REF_URL)) // It shouw ref request param.
                             .setPublisher(Publisher.newBuilder()
                                     .setId(adBlockInfo.getUserId()+"")
                                     .addCat(adBlockInfo.getAdBlockCat())
                                     .setDomain(adBlockInfo.getWebsite())
                                     .setName(adBlockInfo.getFirstName()+ " "+ adBlockInfo.getLastName())))
-                    .setDevice(Device.newBuilder()
-                            .setDnt(false)
-                            .setLmt(Boolean.parseBoolean(parameter.get(Constant.LMT)))
-                            .setGeo(Geo.newBuilder()
-                                    .setLat((location.getLocation().getLatitude() != null) ? location.getLocation().getLatitude() : 0.000000)
-                                    .setLon((location.getLocation().getLongitude() != null) ? location.getLocation().getLongitude() : 0.000000)
-                                    .setCountry((location.getCountry().getIsoCode() != null) ? location.getCountry().getIsoCode() : "")
-                                    .setCity((location.getCity().getName() != null) ? location.getCity().getName() : "")
-                                    .setZip((location.getPostal().getCode() != null) ? location.getPostal().getCode() : "")
-                                    .setMetro(location.getLocation().getMetroCode()+"")
-                                    .setType(LocationType.IP)
-                                    .setUtcoffset(200))
-                                    //Region not required . based on discussion over skype with Hari
-                            .setIp(parameter.get(Constant.IP))
-                            .setUa(parameter.get(Constant.USER_AGENT))
-                            .setOs(parameter.get(Constant.DEVICE_OS))
-                            .setLanguage(parameter.get(Constant.DEVICE_LANG))
-                            .setMake(parameter.get(Constant.DEVICE_MAKE))
-                            .setJs(true)
-                            .setConnectiontype(getConnectionType(location))
-                            .setDevicetype(getDeviceType(parameter.get(Constant.FORM_FACTOR)))
-                            .setOsv(parameter.get(Constant.DEVICE_OS_VERSION))
-                            .setModel(parameter.get(Constant.DEVICE_MODEL))
-                            .setHwv(parameter.get(Constant.DEVICE_HWV)))
+                    .setDevice(getDeviceBuilder(location, parameter))
                     .setUser(User.newBuilder().setId(adBlockInfo.getUserId()+""))
                     //.setExtension()//Not required on current phase. Based on discussion over skype.
                     .build();
@@ -120,9 +96,39 @@ public class RTBGenerator {
     }
 
 
+    private Device.Builder getDeviceBuilder(CityResponse location, Map<String,String> parameter){
+        Device.Builder deviceBuilder =  Device.newBuilder()
+                .setDnt(false)
+                .setLmt(Boolean.parseBoolean(parameter.get(Constant.LMT)))
+                .setIp(parameter.get(Constant.IP))
+                .setUa(parameter.get(Constant.USER_AGENT))
+                .setOs(parameter.get(Constant.DEVICE_OS))
+                .setLanguage(parameter.get(Constant.DEVICE_LANG))
+                .setMake(parameter.get(Constant.DEVICE_MAKE))
+                .setJs(true)
+                .setConnectiontype(getConnectionType(location))
+                .setDevicetype(getDeviceType(parameter.get(Constant.FORM_FACTOR)))
+                .setOsv(parameter.get(Constant.DEVICE_OS_VERSION))
+                .setModel(parameter.get(Constant.DEVICE_MODEL))
+                .setHwv(parameter.get(Constant.DEVICE_HWV));
+        if(null != location){
+            deviceBuilder.setGeo(Geo.newBuilder()
+                    .setLat((location.getLocation().getLatitude() != null) ? location.getLocation().getLatitude() : 0.000000)
+                    .setLon((location.getLocation().getLongitude() != null) ? location.getLocation().getLongitude() : 0.000000)
+                    .setCountry((location.getCountry().getIsoCode() != null) ? location.getCountry().getIsoCode() : "")
+                    .setCity((location.getCity().getName() != null) ? location.getCity().getName() : "")
+                    .setZip((location.getPostal().getCode() != null) ? location.getPostal().getCode() : "")
+                    .setMetro(location.getLocation().getMetroCode()+"")
+                    .setType(LocationType.IP)
+                    .setUtcoffset(200));
+            //Region not required . based on discussion over skype with Hari
+        }
+       return  deviceBuilder;
+    }
+
     private static ConnectionType getConnectionType(CityResponse location){
         ConnectionType connectionType = ConnectionType.CONNECTION_UNKNOWN;
-        if(location.getTraits().getConnectionType() != null){
+        if(null != location && location.getTraits().getConnectionType() != null){
             if(location.getTraits().getConnectionType().toString().equals("Cellular"))
                 connectionType = ConnectionType.CELL_UNKNOWN;
             else if(location.getTraits().getConnectionType().toString().equals("Cable/DSL"))
@@ -158,6 +164,10 @@ public class RTBGenerator {
 
     public String getBidAsString(BidRequest bidRequest)throws IOException{
         return openrtbJson.newWriter().writeBidRequest(bidRequest);
+    }
+
+    public static void main(String args[]){
+        System.out.println(getDeviceType("smart-tv"));
     }
 
 }

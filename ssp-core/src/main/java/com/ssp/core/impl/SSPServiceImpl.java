@@ -8,10 +8,12 @@ import com.ssp.api.dto.DSPResponse;
 import com.ssp.api.entity.jpa.AdBlockInfo;
 import com.ssp.api.entity.jpa.DSPInfo;
 import com.ssp.api.entity.jpa.WinNoticeEntity;
+import com.ssp.api.exception.QPSLimitOverFlowException;
 import com.ssp.api.exception.SSPException;
 import com.ssp.api.service.SSPService;
 import com.ssp.core.task.DSPNotifyTask;
 import com.ssp.core.task.DSPTask;
+import com.ssp.core.util.DSPQPSCounter;
 import com.ssp.core.util.SSPBean;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,10 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 import com.google.openrtb.OpenRtb.BidRequest;
 
@@ -55,9 +54,11 @@ public class SSPServiceImpl implements SSPService{
     public BidData processRequest(Map<String,String> parameter) throws SSPException , IOException {
         Long pubId = Long.parseLong(parameter.get(Constant.PUBLISHER_ID));
         AdBlockInfo adBlockInfo = sspBean.getJpaRepository().getAdBlockInfo(pubId, Long.parseLong(parameter.get(Constant.BLOCK_ID)));
+        if(null == adBlockInfo)
+            throw new SSPException(HttpStatus.BAD_REQUEST.value(),"Adblock info is not found for pub id:- "+ pubId + " and block id:-"+ parameter.get(Constant.BLOCK_ID));
         logger.debug("Publisher detail := "+adBlockInfo.toString());
         CityResponse location = getLocation(parameter.get(Constant.IP));
-        logger.debug("Geo location:= "+location.toString());
+        logger.debug("Geo location:= "+ (null != location?location.toString():location));
         parameter.put(Constant.LMT, sspBean.getProperties().getProperty("ssp.lmt"));
         parameter.put(Constant.CURRENCY, sspBean.getProperties().getProperty("ssp.currency"));
         BidRequest bidRequest = sspBean.getRtbGenerator().generate(adBlockInfo,location, parameter);
@@ -73,16 +74,16 @@ public class SSPServiceImpl implements SSPService{
         JSONArray dspIds = new JSONArray();
         for(DSPInfo dspInfo : dspInfos){
             dspInfo.setMaxResponseTime(maxResponseTime);
-            DSPTask dspRequestTask = new DSPTask(sspBean,bidRequest, dspInfo, requestContent);
-            Future<DSPResponse> task = sspBean.getDspExecutor().submit(dspRequestTask);
-            taskList.add(task);
-            dspIds.add(dspInfo.getUserId());
+            try{
+                DSPTask dspRequestTask = new DSPTask(sspBean,bidRequest, dspInfo, requestContent);
+                Future<DSPResponse> task = sspBean.getDspExecutor().submit(dspRequestTask);
+                taskList.add(task);
+                //dspIds.add(dspInfo.getUserId());
+            }catch (QPSLimitOverFlowException e){
+                logger.error(e.getMessage());
+            }
         }
         logger.debug("called dsp ");
-        rtbJSON.put("dsp", dspIds);
-        logger.debug("Saving rtb request");
-        this.sspBean.getMongoRepository().saveRTBJSON(rtbJSON.toJSONString());
-        logger.debug("Saved rtb request");
         Double maxValue = -1.0;
         DSPResponse winningDSP = null;
         JSONObject dspResponsesAsJSON = new JSONObject();
@@ -91,11 +92,14 @@ public class SSPServiceImpl implements SSPService{
             try {
                 //DSPResponse dspResponse = future.get(maxResponseTime+10, TimeUnit.MILLISECONDS);
                 DSPResponse dspResponse = future.get();
-                dspResponsesAsJSON.put(dspResponse.getDspInfo().getUserId(), dspResponse.getResponseAsJSON());
-                if(dspResponse.getCode() == HttpStatus.OK.value()){
-                    if(dspResponse.getBidData().getAuctionPrice()>maxValue){
-                        maxValue = dspResponse.getBidData().getAuctionPrice();
-                        winningDSP = dspResponse;
+                if(null != dspResponse){
+                    dspIds.add(dspResponse.getDspInfo().getUserId());
+                    dspResponsesAsJSON.put(dspResponse.getDspInfo().getUserId(), dspResponse.getResponseAsJSON());
+                    if(dspResponse.getCode() == HttpStatus.OK.value()){
+                        if(dspResponse.getBidData().getAuctionPrice()>maxValue){
+                            maxValue = dspResponse.getBidData().getAuctionPrice();
+                            winningDSP = dspResponse;
+                        }
                     }
                 }
             } catch (InterruptedException e) {
@@ -107,6 +111,10 @@ public class SSPServiceImpl implements SSPService{
             }*/
         }
         logger.debug("read dsp response");
+        rtbJSON.put("dsp", dspIds);
+        logger.debug("Saving rtb request");
+        this.sspBean.getMongoRepository().saveRTBJSON(rtbJSON.toJSONString());
+        logger.debug("Saved rtb request");
         logger.debug("Saving dsp response");
         this.sspBean.getMongoRepository().saveDSPResponse(dspResponsesAsJSON.toJSONString());
         logger.debug("Saved dsp response");
@@ -114,7 +122,7 @@ public class SSPServiceImpl implements SSPService{
             logger.debug("notifying will URL");
             DSPNotifyTask notifyTask = new DSPNotifyTask(sspBean,winningDSP.getBidData().getFullNURL());
             sspBean.getDspNotifyExecutor().submit(notifyTask);
-            saveWinningBid(winningDSP, adBlockInfo, pubId.intValue());
+            saveWinningBid(winningDSP, adBlockInfo, pubId.intValue(), Integer.parseInt(parameter.get(Constant.BLOCK_ID)));
         }
         BidData bidData = null;
         if(null != winningDSP){
@@ -135,13 +143,14 @@ public class SSPServiceImpl implements SSPService{
         }
     }
 
-    private void saveWinningBid(DSPResponse dspResponse, AdBlockInfo adBlockInfo, Integer pubId){
+    private void saveWinningBid(DSPResponse dspResponse, AdBlockInfo adBlockInfo, Integer pubId, Integer blockId){
         WinNoticeEntity winNotice = new WinNoticeEntity();
         winNotice.setDspId(dspResponse.getDspInfo().getUserId().intValue());
         winNotice.setPublisherId(pubId);
-        winNotice.setPublisherShare(adBlockInfo.getFloorPrice());
-        winNotice.setDspBidAmount(dspResponse.getBidData().getAuctionPrice().floatValue());
+        winNotice.setPublisherShare(adBlockInfo.getFloorPrice()/1000);
+        winNotice.setDspBidAmount(dspResponse.getBidData().getAuctionPrice().floatValue()/1000);
         winNotice.setRequestId(dspResponse.getBidData().getAuctionId());
+        winNotice.setAdSpaceId(blockId);
         this.sspBean.getJpaRepository().saveWinningBid(winNotice);
     }
 
@@ -149,9 +158,12 @@ public class SSPServiceImpl implements SSPService{
         try {
             return sspBean.getLocationService().getLocation(ip);
         } catch (IOException  e) {
-            throw new SSPException("Not able to read location from maxmind",e,HttpStatus.BAD_REQUEST.value());
+            logger.error("Not able to read location from maxmind");
+            //throw new SSPException("Not able to read location from maxmind",e,HttpStatus.BAD_REQUEST.value());
         } catch (GeoIp2Exception e) {
-            throw new SSPException("Not able to read location from maxmind",e,HttpStatus.BAD_REQUEST.value());
+            logger.error("Not able to read location from maxmind");
+            //throw new SSPException("Not able to read location from maxmind",e,HttpStatus.BAD_REQUEST.value());
         }
+        return null;
     }
 }

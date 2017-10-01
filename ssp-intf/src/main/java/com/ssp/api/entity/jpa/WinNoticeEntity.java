@@ -16,6 +16,7 @@ public class WinNoticeEntity {
     private String requestId;
     private Float publisherShare;
     private Float dspBidAmount;
+    private Integer adSpaceId;
 
     public WinNoticeEntity() {
         this.createdAt = new Date();
@@ -85,6 +86,15 @@ public class WinNoticeEntity {
 
     public void setDspBidAmount(Float dspBidAmount) {
         this.dspBidAmount = dspBidAmount;
+    }
+
+    @Column(name = "adspace_id")
+    public Integer getAdSpaceId() {
+        return adSpaceId;
+    }
+
+    public void setAdSpaceId(Integer adSpaceId) {
+        this.adSpaceId = adSpaceId;
     }
 
     @Override
